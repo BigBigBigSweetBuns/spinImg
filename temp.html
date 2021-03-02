@@ -37,6 +37,9 @@
         let moveMouse = {
             oldX: 0,
             oldY: 0,
+            ClientX: 0,// 鼠标当前X轴
+            clientY: 0,
+            drection: false,//1,2,3,4 上右下左
             onClick: false,
             onUp: true,
         }
@@ -59,12 +62,12 @@
         function showImg(newX, newY) {
             if (moveMouse.onClick && !moveMouse.onUp) { // 在鼠标点击后，未松开
                 if (newX > moveMouse.oldX + 15) { // 移动三个像素
-                    imgNum = imgNum - 1 > 0 ? imgNum - 1 : imgLength;
+                    imgNum = imgNum - 1 > 0 ? imgNum - 1 : imgLength - 1;
                     ctx.drawImage(list[imgNum], 0, 0);
                     moveMouse.oldX = newX;
                     console.log("切换到" + imgNum + "图")
                 } else if (newX < moveMouse.oldX - 15) { // 移动三个像素
-                    imgNum = imgNum + 1 <= imgLength ? imgNum + 1 : 0;
+                    imgNum = imgNum + 1 < imgLength ? imgNum + 1 : 0;
                     ctx.drawImage(list[imgNum], 0, 0);
                     moveMouse.oldX = newX;
                     console.log("切换到" + imgNum + "图")
@@ -72,27 +75,68 @@
                 box2.innerHTML = "X:" + newX + " Y: " + newY + "\n oldX:" + moveMouse.oldX + "oldY:" + moveMouse.oldY;
             }
         }
-        // 鼠标点击
-        c.onmousedown = function () {
-            moveMouse.onClick = true;
-            moveMouse.onUp = false;
-            moveMouse.oldX = event.clientX;
-            moveMouse.oldY = event.clientY;
-        }
-        // 鼠标松开
-        c.onmouseup = function () {
-            moveMouse.onClick = false;
-            moveMouse.onUp = true;
-        }
-        // 绘制图片
-        c.onmousemove = function (event) {
-            event = event || window.event;
-            showImg(event.clientX, event.clientY)
-        }
         // TODO:
         // 每0.02秒有无松开鼠标，如果松开鼠标，记录该区间速度。将该速度衰平滑减至零
         // 进度条动画
         // 点击进度条实现动画旋转
         // ted剩余网页
+        // 
+        let timeX = 0, moveSpeed = 0;
+        function captureSpeed() { // 捕获速度,延时参数错误
+            console.log("moveSpeed", moveSpeed);
+            if (!moveMouse.onUp) {
+                setTimeout(function () {
+                    moveSpeed = Math.abs(moveMouse.clientX - timeX);
+                    timeX = moveMouse.clientX;
+                    captureSpeed()
+                }, 20);
+            }
+        }
+        function showImgSlide(speed, clientX) { // 滑动,延时参数错误
+            console.log("speed", speed)
+            let nowSpeed = Math.floor(100 - speed) > 0 ? Math.floor(100 - speed) : 1;
+            console.log("speedfloor", nowSpeed)
+            if (speed > 10) {
+                setTimeout(function () {
+                    // 往左
+                    if (moveMouse.oldX > clientX) {
+                        imgNum = imgNum + 1 < imgLength ? imgNum + 1 : 0;
+                        ctx.drawImage(list[imgNum], 0, 0);
+                    } else {
+                        imgNum = imgNum - 1 > 0 ? imgNum - 1 : imgLength - 1;
+                        ctx.drawImage(list[imgNum], 0, 0);
+                    }
+                    showImgSlide(Math.floor(speed - 50));
+                }, nowSpeed);
+            }
+        }
+
+
+        // 鼠标点击
+        c.onmousedown = function (event) {
+            event = event || window.event;
+            moveMouse.onClick = true;
+            moveMouse.onUp = false;
+            moveMouse.oldX = event.clientX;
+            moveMouse.oldY = event.clientY;
+            captureSpeed();
+        }
+        // 鼠标松开
+        c.onmouseup = function () {
+            moveMouse.onClick = false;
+            moveMouse.onUp = true;
+
+            showImgSlide(moveSpeed, event.clientX);
+        }
+        // c.onmouseover = function () {
+        //     moveMouse.onClick = false;
+        //     moveMouse.onUp = true;
+        // }
+        // 绘制图片
+        c.onmousemove = function (event) {
+            event = event || window.event;
+            moveMouse.clientX = event.clientX;
+            showImg(event.clientX, event.clientY)
+        }
     }
 </script>
