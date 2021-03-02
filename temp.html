@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    body {
+        /* background-color: #000; */
+    }
+
+    canvas {
+        background-color: #fff;
+    }
+</style>
+
+<body>
+    <canvas id="myCanvas" width="1900" height="1060"></canvas>
+    <div class="box2"></div>
+</body>
+
+</html>
+<script>
+    window.onload = function () {
+        let imgNum = 0;// 当前播放的第几个图片
+        // let imgLength = 15;// 移动的像素
+        let imgLength = 89;// 移动的像素
+        var num = 1;// 图片开始数字
+        var list = [];//加载好后的图片存放
+        var box2 = document.getElementsByClassName("box2")[0];
+        loadImage();
+        var c = document.getElementById("myCanvas");
+        var ctx = c.getContext("2d")
+        let moveMouse = {
+            oldX: 0,
+            oldY: 0,
+            onClick: false,
+            onUp: true,
+        }
+        function loadImage() {
+            var img = new Image();
+            img.addEventListener("load", loadHandler);
+            img.src = "./pic/" + num + ".jpg";
+
+        }
+        function loadHandler(e) {
+            list.push(this.cloneNode());//复制当前图片元素
+            num++;
+            if (num > 89) {
+                ctx.drawImage(list[0], 0, 0);
+                return;
+            }
+            this.src = "./pic/" + num + ".jpg"; //修改地址继续后触发load事件
+        }
+        //展示图片
+        function showImg(newX, newY) {
+            if (moveMouse.onClick && !moveMouse.onUp) { // 在鼠标点击后，未松开
+                if (newX > moveMouse.oldX + 15) { // 移动三个像素
+                    imgNum = imgNum - 1 > 0 ? imgNum - 1 : imgLength;
+                    ctx.drawImage(list[imgNum], 0, 0);
+                    moveMouse.oldX = newX;
+                    console.log("切换到" + imgNum + "图")
+                } else if (newX < moveMouse.oldX - 15) { // 移动三个像素
+                    imgNum = imgNum + 1 <= imgLength ? imgNum + 1 : 0;
+                    ctx.drawImage(list[imgNum], 0, 0);
+                    moveMouse.oldX = newX;
+                    console.log("切换到" + imgNum + "图")
+                }
+                box2.innerHTML = "X:" + newX + " Y: " + newY + "\n oldX:" + moveMouse.oldX + "oldY:" + moveMouse.oldY;
+            }
+        }
+        // 鼠标点击
+        c.onmousedown = function () {
+            moveMouse.onClick = true;
+            moveMouse.onUp = false;
+            moveMouse.oldX = event.clientX;
+            moveMouse.oldY = event.clientY;
+        }
+        // 鼠标松开
+        c.onmouseup = function () {
+            moveMouse.onClick = false;
+            moveMouse.onUp = true;
+        }
+        // 绘制图片
+        c.onmousemove = function (event) {
+            event = event || window.event;
+            showImg(event.clientX, event.clientY)
+        }
+        // TODO:
+        // 每0.02秒有无松开鼠标，如果松开鼠标，记录该区间速度。将该速度衰平滑减至零
+        // 进度条动画
+        // 点击进度条实现动画旋转
+        // ted剩余网页
+    }
+</script>
