@@ -21,6 +21,7 @@
     <canvas id="myCanvas" width="1900" height="1060"></canvas>
     <div class="box2"></div>
     <div class="speed"></div>
+    <div class="text">text</div>
     <button id="qie">切换</button>
 </body>
 
@@ -44,6 +45,7 @@
         var imgNum = 0;
         var box2 = document.getElementsByClassName("box2")[0];
         var speedBox = document.getElementsByClassName("speed")[0];
+        var text = document.getElementsByClassName("text")[0];//测试显示内容标签，测试完后删除
         loadImage(data.one);
         // imgsUrls[1] = loadImage(data.two);
         console.log(imgsUrls)
@@ -60,7 +62,7 @@
         }
         function loadImage(arrUrls) {
             let num = 0;
-            var img = new Image();
+            let img = new Image();
             img.src = "./pic/" + arrUrls[num];
             img.addEventListener("load", loadHandler);
             function loadHandler(e) {
@@ -72,6 +74,27 @@
                 }
                 this.src = "./pic/" + arrUrls[num]; //修改地址继续后触发load事件
             }
+        }
+        a1(data.one, (res) => {
+            text.innerHTML = res;
+        });
+        function a1(arrUrls, callback) {
+            let promiseArr = [];
+            for (let i = 0; i < arrUrls.length; i++) {
+                promiseArr.push(new Promise((resolve) => {
+                    let img = new Image();
+                    img.src = "./pic/" + arrUrls[i];
+                    let timer = setInterval(function () {
+                        if (img.complete) {
+                            clearInterval(timer);
+                            resolve(img);
+                        }
+                    }, 50)
+                }))
+            }
+            Promise.all(promiseArr).then(res => {
+                callback(res)
+            });
         }
         //展示图片
         function showImg(newX, newY, imgsUrl) {
