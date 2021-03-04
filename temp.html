@@ -223,11 +223,20 @@
             }, speed);
         }
         function imgSpining(imgsArr1, imgsArr2, drection, time, callback) {
-            let speed = Math.floor(time / (imgsArr1.length - 1));
+            let min = false;
+            let i = imgNum;
+            let speed = Math.floor(time / (imgsArr1.length - 1 - i));
             if (drection == 2) {// 右
-                let i = imgsArr1.length - 1;
+                if (i < imgsArr1.length / 2) { // 小于的时候加多旋转的图片
+                    speed = Math.floor(time / (imgsArr1.length - 1 + i));
+                    min = true;
+                }
                 let intarval = setInterval(() => {
-                    if (i < 0) {
+                    if (min && i == 0) {
+                        min = false;
+                        i = imgsArr1.length - 1;
+                    }
+                    if (!min && i < 0) {
                         clearInterval(intarval);
                     } else if (i < (imgsArr1.length / 2)) {
                         callback(imgsArr2[i]);
@@ -237,9 +246,16 @@
                     i--;
                 })
             } else if (drection == 4) { //左
-                let i = 0;
+                if (i > imgsArr1.length / 2) {
+                    speed = Math.floor(time / (imgsArr1.length - 1 + i));
+                    min = true;
+                }
                 let intarval = setInterval(() => {
-                    if (i > imgsArr1.length - 1) {
+                    if (min && i == imgsArr1.length - 1) {
+                        min = false;
+                        i = 0;
+                    }
+                    if (!min && i > imgsArr1.length - 1) {
                         clearInterval(intarval);
                     } else if (i > (imgsArr1.length / 2)) {
                         callback(imgsArr2[i]);
