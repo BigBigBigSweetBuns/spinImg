@@ -18,6 +18,7 @@
 </style>
 
 <body>
+    <div id="load"></div>
     <canvas id="myCanvas" width="1900" height="1060"></canvas>
     <div class="box2"></div>
     <div class="speed"></div>
@@ -185,16 +186,6 @@
             imgSpining(imgsUrls[0], imgsUrls[1], 4, 3000, (imgContent) => {
                 ctx.drawImage(imgContent, 0, 650, 1900, 410, 0, 650, 1900, 410)
             })
-            // ImgSpiningLeft(imgsUrls[0], 3000, (imgContent) => {
-            //     ctx.drawImage(imgContent, 0, 0, 1900, 350, 0, 0, 1900, 350);
-            // });
-            // ImgSpiningRight(imgsUrls[1], 3000, (imgContent) => {
-            //     ctx.drawImage(imgContent, 0, 350, 1900, 300, 0, 350, 1900, 300);
-            // });
-            // ImgSpiningLeft(imgsUrls[0], 3000, (imgContent) => {
-            //     ctx.drawImage(imgContent, 0, 650, 1900, 410, 0, 650, 1900, 410);
-            // });
-            console.log("旋转")
         }
         // 旋转一周
         function ImgSpiningLeft(imgsArr, time, callback) { // 图片组，持续的总时间（ms）
@@ -247,7 +238,7 @@
                 })
             } else if (drection == 4) { //左
                 if (i > imgsArr1.length / 2) {
-                    speed = Math.floor(time / (imgsArr1.length - 1 + i));
+                    speed = Math.floor(time / (imgsArr1.length - 1 + (imgsArr1.length - i)));
                     min = true;
                 }
                 let intarval = setInterval(() => {
