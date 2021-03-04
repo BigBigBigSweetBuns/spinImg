@@ -46,9 +46,7 @@
         var box2 = document.getElementsByClassName("box2")[0];
         var speedBox = document.getElementsByClassName("speed")[0];
         var text = document.getElementsByClassName("text")[0];//测试显示内容标签，测试完后删除
-        loadImage(data.one);
-        // imgsUrls[1] = loadImage(data.two);
-        console.log(imgsUrls)
+        // loadImage(data.one);
         var c = document.getElementById("myCanvas");
         var ctx = c.getContext("2d")
         let moveMouse = {
@@ -75,10 +73,17 @@
                 this.src = "./pic/" + arrUrls[num]; //修改地址继续后触发load事件
             }
         }
-        a1(data.one, (res) => {
-            text.innerHTML = res;
+        // 加载第一份图
+        waitImgload(data.one, (res) => {
+            imgsUrls[0] = res;
+            console.log(imgsUrls[0])
         });
-        function a1(arrUrls, callback) {
+        // 第二份图
+        waitImgload(data.two, (res) => {
+            imgsUrls[1] = res;
+            console.log(imgsUrls[1])
+        });
+        function waitImgload(arrUrls, callback) {
             let promiseArr = [];
             for (let i = 0; i < arrUrls.length; i++) {
                 promiseArr.push(new Promise((resolve) => {
@@ -170,27 +175,80 @@
         //*********** 实现切换效果  *************//
         let qie = document.getElementById("qie");
         qie.onclick = () => {
-            ImgSpining(imgsUrls[0], 3000, (imgContent) => {
-                ctx.drawImage(imgContent, 0, 0);
+            console.log(imgsUrls);
+            imgSpining(imgsUrls[0], imgsUrls[1], 4, 3000, (imgContent) => {
+                ctx.drawImage(imgContent, 0, 0, 1900, 350, 0, 0, 1900, 350)
+            })
+            imgSpining(imgsUrls[0], imgsUrls[1], 2, 3000, (imgContent) => {
+                ctx.drawImage(imgContent, 0, 350, 1900, 300, 0, 350, 1900, 300);
             });
+            imgSpining(imgsUrls[0], imgsUrls[1], 4, 3000, (imgContent) => {
+                ctx.drawImage(imgContent, 0, 650, 1900, 410, 0, 650, 1900, 410)
+            })
+            // ImgSpiningLeft(imgsUrls[0], 3000, (imgContent) => {
+            //     ctx.drawImage(imgContent, 0, 0, 1900, 350, 0, 0, 1900, 350);
+            // });
+            // ImgSpiningRight(imgsUrls[1], 3000, (imgContent) => {
+            //     ctx.drawImage(imgContent, 0, 350, 1900, 300, 0, 350, 1900, 300);
+            // });
+            // ImgSpiningLeft(imgsUrls[0], 3000, (imgContent) => {
+            //     ctx.drawImage(imgContent, 0, 650, 1900, 410, 0, 650, 1900, 410);
+            // });
             console.log("旋转")
         }
         // 旋转一周
-        function ImgSpining(imgsArr, time, callback) { // 图片组，持续的总时间（ms）
-            console.log(imgsArr.length)
+        function ImgSpiningLeft(imgsArr, time, callback) { // 图片组，持续的总时间（ms）
             let speed = Math.floor(time / (imgsArr.length - 1));
-            console.log(speed)
             let i = 0;
             let interval = setInterval(() => {
-                console.log("绘画");
                 if (i > imgsArr.length - 1) {
-                    console.log("清除");
                     clearInterval(interval);
                 } else if (typeof callback == "function") {
+                    console.log("i", i);
                     callback(imgsArr[i]);
                 }
                 i++;
             }, speed);
+        }
+        function ImgSpiningRight(imgsArr, time, callback) { // 图片组，持续的总时间（ms）
+            let speed = Math.floor(time / (imgsArr.length - 1));
+            let i = imgsArr.length - 1;
+            let interval = setInterval(() => {
+                if (i < 0) {
+                    clearInterval(interval);
+                } else if (typeof callback == "function") {
+                    callback(imgsArr[i]);
+                }
+                i--;
+            }, speed);
+        }
+        function imgSpining(imgsArr1, imgsArr2, drection, time, callback) {
+            let speed = Math.floor(time / (imgsArr1.length - 1));
+            if (drection == 2) {// 右
+                let i = imgsArr1.length - 1;
+                let intarval = setInterval(() => {
+                    if (i < 0) {
+                        clearInterval(intarval);
+                    } else if (i < (imgsArr1.length / 2)) {
+                        callback(imgsArr2[i]);
+                    } else {
+                        callback(imgsArr1[i]);
+                    }
+                    i--;
+                })
+            } else if (drection == 4) { //左
+                let i = 0;
+                let intarval = setInterval(() => {
+                    if (i > imgsArr1.length - 1) {
+                        clearInterval(intarval);
+                    } else if (i > (imgsArr1.length / 2)) {
+                        callback(imgsArr2[i]);
+                    } else {
+                        callback(imgsArr1[i]);
+                    }
+                    i++;
+                });
+            }
         }
 
 
