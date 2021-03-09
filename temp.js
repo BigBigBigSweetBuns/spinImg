@@ -1,5 +1,25 @@
-var load = function (schedule = 30, total = 100) {
-    // let red = 5000, total = 5000 //红色区域代表的金额和总金额
+var list = [];//加载好后的图片存放
+var scheduleOne = 0; // 加载顺序
+var scheduleTwo = 0; // 加载顺序
+var imgNum = 0;
+var loadOne = function (total = 100) {
+    scheduleOne++;
+    let percent = schedule / total
+    let right = document.getElementsByClassName('circle-right')[0]
+    let left = document.getElementsByClassName('circle-left')[0]
+    if (percent <= 0.5) {  //红色区域不超过一半
+        right.style.transform = `rotate(${percent * 360}deg)`
+    } else {    //红色区域超过一半的情况，重点部分
+        right.style.transform = `rotate(180deg)`
+        right.style.transition = `opacity 0s step-end 1s, transform 1s linear` //timing-function需要设为linear来达到视觉上的平缓过渡
+        right.style.opacity = 0
+
+        left.style.transition = `transform ${(percent - 0.5) / 0.5}s linear 1s`
+        left.style.transform = `rotate(${percent * 360 - 180}deg)`
+    }
+}
+var loadTwo= function (total = 100) {
+    scheduleTwo++;
     let percent = schedule / total
     let right = document.getElementsByClassName('circle-right')[0]
     let left = document.getElementsByClassName('circle-left')[0]
@@ -29,9 +49,6 @@ for (let i = 38; i <= 89; i++) {
 }
 
 window.onload = function () {
-    load();
-    var list = [];//加载好后的图片存放
-    var imgNum = 0;
     var box2 = document.getElementsByClassName("box2")[0];
     var speedBox = document.getElementsByClassName("speed")[0];
     var text = document.getElementsByClassName("text")[0];//测试显示内容标签，测试完后删除
@@ -48,46 +65,30 @@ window.onload = function () {
         onUp: true,
         status: 0,//当前需要旋转第几份图。0第一份，1第二份
     }
-    function loadImage(arrUrls) {
-        let num = 0;
-        let img = new Image();
-        img.src = "./pic/" + arrUrls[num];
-        img.addEventListener("load", loadHandler);
-        function loadHandler(e) {
-            imgsUrls[0].push(this.cloneNode());//复制当前图片元素
-            num++;
-            if (num > arrUrls.length - 1) {
-                ctx.drawImage(imgsUrls[0][0], 0, 0);
-                return;
-            }
-            this.src = "./pic/" + arrUrls[num]; //修改地址继续后触发load事件
-        }
-    }
     // 加载第一份图
     waitImgload(testdata, (res) => {
         imgsUrls[0] = res;
         console.log(imgsUrls[0])
     });
-    waitImgload(data.one, (res) => {
-        imgsUrls[0] = res;
-        console.log(imgsUrls[0])
-    });
-    第二份图
-    waitImgload(data.two, (res) => {
-        imgsUrls[1] = res;
-        console.log(imgsUrls[1])
-    });
+    // waitImgload(data.one, (res) => {
+    //     imgsUrls[0] = res;
+    //     console.log(imgsUrls[0])
+    // });
+    // 第二份图
+    // waitImgload(data.two, (res) => {
+    //     imgsUrls[1] = res;
+    //     console.log(imgsUrls[1])
+    // });
     function waitImgload(arrUrls, callback) {
         let promiseArr = [];
         for (let i = 0; i < arrUrls.length; i++) {
             promiseArr.push(new Promise((resolve) => {
                 let img = new Image();
                 img.src = arrUrls[i];
-                // img.src = "./pic/" + arrUrls[i];
                 let timer = setInterval(function () {
                     if (img.complete) {
-                        load(num, arrUrls.length);
                         clearInterval(timer);
+                        load(arrUrls.length);
                         resolve(img);
                     }
                 }, 50)
@@ -141,9 +142,6 @@ window.onload = function () {
         return new Promise((resolve) => setTimeout(resolve, time));
     }
 
-    function spining(frames) {
-        frames = Math.floor(frames / 10);
-    }
     async function transferspeed(moveSpeed, imgsUrl) {
         let drection = moveMouse.drection;
         moveSpeed = Math.floor(moveSpeed / 10)
