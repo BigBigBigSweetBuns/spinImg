@@ -15,6 +15,11 @@ module.exports = {
         filename: 'public/js/[name].js',
     },
     plugins: [
+        //  配置 MiniCssExtractPlugin 生成独立的 CSS 文件
+        new MiniCssExtractPlugin({
+            filename: 'public/css/[name].css',
+        }),
+        // 匹配生成不同的html页面
         new HtmlWebpackPlugin({
             filename: 'index.html',
             template: './src/spinnerImg/index.ejs',
