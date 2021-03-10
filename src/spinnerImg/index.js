@@ -1,52 +1,16 @@
+import "./index.scss";
+
+import dataLoad from "./js/dataLoad";
+import styleLoading from "./js/styleLoading";
+import spin from "./js/spin";
 var list = [];//加载好后的图片存放
 var scheduleOne = 0; // 加载顺序
 var scheduleTwo = 0; // 加载顺序
 var imgNum = 0;
-var loadOne = function (total = 100) {
-    scheduleOne++;
-    let percent = schedule / total
-    let right = document.getElementsByClassName('circle-right')[0]
-    let left = document.getElementsByClassName('circle-left')[0]
-    if (percent <= 0.5) {  //红色区域不超过一半
-        right.style.transform = `rotate(${percent * 360}deg)`
-    } else {    //红色区域超过一半的情况，重点部分
-        right.style.transform = `rotate(180deg)`
-        right.style.transition = `opacity 0s step-end 1s, transform 1s linear` //timing-function需要设为linear来达到视觉上的平缓过渡
-        right.style.opacity = 0
 
-        left.style.transition = `transform ${(percent - 0.5) / 0.5}s linear 1s`
-        left.style.transform = `rotate(${percent * 360 - 180}deg)`
-    }
-}
-var loadTwo= function (total = 100) {
-    scheduleTwo++;
-    let percent = schedule / total
-    let right = document.getElementsByClassName('circle-right')[0]
-    let left = document.getElementsByClassName('circle-left')[0]
-    if (percent <= 0.5) {  //红色区域不超过一半
-        right.style.transform = `rotate(${percent * 360}deg)`
-    } else {    //红色区域超过一半的情况，重点部分
-        right.style.transform = `rotate(180deg)`
-        right.style.transition = `opacity 0s step-end 1s, transform 1s linear` //timing-function需要设为linear来达到视觉上的平缓过渡
-        right.style.opacity = 0
-
-        left.style.transition = `transform ${(percent - 0.5) / 0.5}s linear 1s`
-        left.style.transform = `rotate(${percent * 360 - 180}deg)`
-    }
-}
-var data = {
-    one: [],
-    two: []
-};
-let testdata = ["https://wx4.sinaimg.cn/mw1024/006yVIrkgy1g81nvxz1t2j31900u0e81.jpg", "https://wx2.sinaimg.cn/mw1024/006yVIrkgy1g81nug4qjwj31900u0b29.jpg", "https://wx3.sinaimg.cn/mw1024/006yVIrkgy1g81numwi9yj31900u0b29.jpg", "https://wx4.sinaimg.cn/mw1024/006yVIrkgy1g81nxu0jfxj30u0190hdt.jpg", "https://wx3.sinaimg.cn/mw1024/006yVIrkgy1g81nv2m6opj30u0190e81.jpg"];
 var imgsUrls = [[], []];
 // 暂时以循环代替 图片数组
-for (let i = 1; i < 38; i++) {
-    data.one.push(i + ".jpg");
-}
-for (let i = 38; i <= 89; i++) {
-    data.two.push(i + ".jpg");
-}
+
 
 window.onload = function () {
     var box2 = document.getElementsByClassName("box2")[0];
@@ -66,20 +30,20 @@ window.onload = function () {
         status: 0,//当前需要旋转第几份图。0第一份，1第二份
     }
     // 加载第一份图
-    waitImgload(testdata, (res) => {
-        imgsUrls[0] = res;
-        console.log(imgsUrls[0])
-    });
-    // waitImgload(data.one, (res) => {
+    // waitImgload(testdata, (res) => {
     //     imgsUrls[0] = res;
     //     console.log(imgsUrls[0])
     // });
+    waitImgloadOne(dataLoad.getDataOne(), (res) => {
+        imgsUrls[0] = res;
+        console.log(imgsUrls[0])
+    });
     // 第二份图
-    // waitImgload(data.two, (res) => {
-    //     imgsUrls[1] = res;
-    //     console.log(imgsUrls[1])
-    // });
-    function waitImgload(arrUrls, callback) {
+    waitImgloadTwo(dataLoad.getDataTwo(), (res) => {
+        imgsUrls[1] = res;
+        console.log(imgsUrls[1])
+    });
+    function waitImgloadOne(arrUrls, callback) {
         let promiseArr = [];
         for (let i = 0; i < arrUrls.length; i++) {
             promiseArr.push(new Promise((resolve) => {
@@ -88,7 +52,26 @@ window.onload = function () {
                 let timer = setInterval(function () {
                     if (img.complete) {
                         clearInterval(timer);
-                        load(arrUrls.length);
+                        styleLoading.loadOne(arrUrls.length);
+                        resolve(img);
+                    }
+                }, 50)
+            }))
+        }
+        Promise.all(promiseArr).then(res => {
+            callback(res)
+        });
+    }
+    function waitImgloadTwo(arrUrls, callback) {
+        let promiseArr = [];
+        for (let i = 0; i < arrUrls.length; i++) {
+            promiseArr.push(new Promise((resolve) => {
+                let img = new Image();
+                img.src = arrUrls[i];
+                let timer = setInterval(function () {
+                    if (img.complete) {
+                        clearInterval(timer);
+                        styleLoading.loadTwo(arrUrls.length);
                         resolve(img);
                     }
                 }, 50)
@@ -166,101 +149,30 @@ window.onload = function () {
             ctx.drawImage(imgsUrl[imgNum], 0, 0);
         }
     }
-    //*********** 实现切换效果  *************//
+
     let qie = document.getElementById("qie");
     qie.onclick = () => {
         moveMouse.status = moveMouse.status == 1 ? 0 : 1;
         if (moveMouse.status == 0) {
-            imgSpining(imgsUrls[0], imgsUrls[1], 4, 3000, (imgContent) => {
+            spin.imgSpining(imgsUrls[0], imgsUrls[1], imgNum, 4, 3000, (imgContent) => {
                 ctx.drawImage(imgContent, 0, 0, 1900, 350, 0, 0, 1900, 350)
             })
-            imgSpining(imgsUrls[0], imgsUrls[1], 2, 3000, (imgContent) => {
+            spin.imgSpining(imgsUrls[0], imgsUrls[1], imgNum, 2, 3000, (imgContent) => {
                 ctx.drawImage(imgContent, 0, 350, 1900, 300, 0, 350, 1900, 300);
             });
-            imgSpining(imgsUrls[0], imgsUrls[1], 4, 3000, (imgContent) => {
+            spin.imgSpining(imgsUrls[0], imgsUrls[1], imgNum, 4, 3000, (imgContent) => {
                 ctx.drawImage(imgContent, 0, 650, 1900, 410, 0, 650, 1900, 410)
             })
         } else {
-            imgSpining(imgsUrls[1], imgsUrls[0], 4, 3000, (imgContent) => {
+            spin.imgSpining(imgsUrls[1], imgsUrls[0], imgNum, 4, 3000, (imgContent) => {
                 ctx.drawImage(imgContent, 0, 0, 1900, 350, 0, 0, 1900, 350)
             })
-            imgSpining(imgsUrls[1], imgsUrls[0], 2, 3000, (imgContent) => {
+            spin.imgSpining(imgsUrls[1], imgsUrls[0], imgNum, 2, 3000, (imgContent) => {
                 ctx.drawImage(imgContent, 0, 350, 1900, 300, 0, 350, 1900, 300);
             });
-            imgSpining(imgsUrls[1], imgsUrls[0], 4, 3000, (imgContent) => {
+            spin.imgSpining(imgsUrls[1], imgsUrls[0], imgNum, 4, 3000, (imgContent) => {
                 ctx.drawImage(imgContent, 0, 650, 1900, 410, 0, 650, 1900, 410)
             })
-        }
-    }
-    // 旋转一周
-    function ImgSpiningLeft(imgsArr, time, callback) { // 图片组，持续的总时间（ms）
-        let speed = Math.floor(time / (imgsArr.length - 1));
-        let i = 0;
-        let interval = setInterval(() => {
-            if (i > imgsArr.length - 1) {
-                clearInterval(interval);
-            } else if (typeof callback == "function") {
-                console.log("i", i);
-                callback(imgsArr[i]);
-            }
-            i++;
-        }, speed);
-    }
-    function ImgSpiningRight(imgsArr, time, callback) { // 图片组，持续的总时间（ms）
-        let speed = Math.floor(time / (imgsArr.length - 1));
-        let i = imgsArr.length - 1;
-        let interval = setInterval(() => {
-            if (i < 0) {
-                clearInterval(interval);
-            } else if (typeof callback == "function") {
-                callback(imgsArr[i]);
-            }
-            i--;
-        }, speed);
-    }
-    function imgSpining(imgsArr1, imgsArr2, drection, time, callback) {
-        let length = Math.min(imgsArr1.length, imgsArr2.length);
-        let min = false;
-        let i = imgNum;
-        let speed = Math.floor(time / (length - 1 - i));
-        if (drection == 2) {// 右
-            if (i < imgsArr1.length / 2) { // 小于的时候加多旋转的图片
-                speed = Math.floor(time / (length - 1 + i));
-                min = true;
-            }
-            let intarval = setInterval(() => {
-                if (min && i == 0) {
-                    min = false;
-                    i = length - 1;
-                }
-                if (!min && i < 0) {
-                    clearInterval(intarval);
-                } else if (i < (length / 2)) {
-                    callback(imgsArr2[i]);
-                } else {
-                    callback(imgsArr1[i]);
-                }
-                i--;
-            })
-        } else if (drection == 4) { //左
-            if (i > length / 2) {
-                speed = Math.floor(time / (length - 1 + (length - i)));
-                min = true;
-            }
-            let intarval = setInterval(() => {
-                if (min && i == length - 1) {
-                    min = false;
-                    i = 0;
-                }
-                if (!min && i > length - 1) {
-                    clearInterval(intarval);
-                } else if (i > (length / 2)) {
-                    callback(imgsArr2[i]);
-                } else {
-                    callback(imgsArr1[i]);
-                }
-                i++;
-            });
         }
     }
 
