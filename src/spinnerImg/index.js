@@ -3,9 +3,6 @@ import "./index.scss";
 import dataLoad from "./js/dataLoad";
 import styleLoading from "./js/styleLoading";
 import spin from "./js/spin";
-var list = [];//加载好后的图片存放
-var scheduleOne = 0; // 加载顺序
-var scheduleTwo = 0; // 加载顺序
 var imgNum = 0;
 
 var imgsUrls = [[], []];
@@ -37,11 +34,11 @@ window.onload = function () {
     waitImgloadOne(dataLoad.getDataOne(), (res) => {
         imgsUrls[0] = res;
         console.log(imgsUrls[0])
-    });
-    // 第二份图
-    waitImgloadTwo(dataLoad.getDataTwo(), (res) => {
-        imgsUrls[1] = res;
-        console.log(imgsUrls[1])
+        // 第二份图
+        waitImgloadTwo(dataLoad.getDataTwo(), (res) => {
+            imgsUrls[1] = res;
+            console.log(imgsUrls[1])
+        });
     });
     function waitImgloadOne(arrUrls, callback) {
         let promiseArr = [];
