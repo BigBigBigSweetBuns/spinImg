@@ -15,7 +15,11 @@ window.onload = function () {
     var text = document.getElementsByClassName("text")[0];//测试显示内容标签，测试完后删除
     // loadImage(data.one);
     var c = document.getElementById("myCanvas");
+    c.width= document.body.clientWidth  ;
+    c.height = document.body.clientWidth * 0.55 ;
     var ctx = c.getContext("2d")
+    var canvasWidth = c.width;
+    var canvasHeight = c.height;
     let moveMouse = {
         oldX: 0,
         oldY: 0,
@@ -84,13 +88,15 @@ window.onload = function () {
             let num = 0;
             if (moveMouse.drection == 2) { // right 移动三个像素
                 imgNum = imgNum - 1 > 0 ? imgNum - 1 : imgsUrl.length - 1;
-                ctx.drawImage(imgsUrl[imgNum], 0, 0);
+                ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+                ctx.drawImage(imgsUrl[imgNum], 0, 0,canvasWidth,canvasHeight);
                 moveMouse.oldX = newX;
             } else if (moveMouse.drection == 4) { // left 移动三个像素 
                 imgNum = imgNum < imgsUrl.length - 1 ? imgNum + 1 : 0;
-                ctx.drawImage(imgsUrl[imgNum], 0, 0);
+                ctx.drawImage(imgsUrl[imgNum], 0, 0, canvasWidth, canvasHeight);
                 moveMouse.oldX = newX;
             }
+            console.log("width: " + canvasWidth + " height: " + canvasHeight)
             box2.innerHTML = "X:" + newX + " Y: " + newY + "\n oldX:" + moveMouse.oldX + "oldY:" + moveMouse.oldY;
         }
     }
@@ -149,26 +155,36 @@ window.onload = function () {
 
     let qie = document.getElementById("qie");
     qie.onclick = () => {
+        let height = c.height;
+        let width = c.width;
+        let oneline = Math.floor(height * 0.3);
+        let twoline = Math.floor(height * 0.3);
+        let threeline = height - oneline - twoline;
+        console.log(height)
+        console.log(width)
+        console.log(oneline)
+        console.log(twoline)
+        console.log(threeline);
         moveMouse.status = moveMouse.status == 1 ? 0 : 1;
         if (moveMouse.status == 0) {
             spin.imgSpining(imgsUrls[0], imgsUrls[1], imgNum, 4, 3000, (imgContent) => {
-                ctx.drawImage(imgContent, 0, 0, 1900, 350, 0, 0, 1900, 350)
+                ctx.drawImage(imgContent, 0, 0, width, oneline, 0, 0, width, oneline)
             })
             spin.imgSpining(imgsUrls[0], imgsUrls[1], imgNum, 2, 3000, (imgContent) => {
-                ctx.drawImage(imgContent, 0, 350, 1900, 300, 0, 350, 1900, 300);
+                ctx.drawImage(imgContent, 0, oneline, width, twoline, 0, oneline, width, twoline);
             });
             spin.imgSpining(imgsUrls[0], imgsUrls[1], imgNum, 4, 3000, (imgContent) => {
-                ctx.drawImage(imgContent, 0, 650, 1900, 410, 0, 650, 1900, 410)
+                ctx.drawImage(imgContent, 0, oneline + twoline, width, threeline, 0, oneline + twoline, width, threeline)
             })
         } else {
             spin.imgSpining(imgsUrls[1], imgsUrls[0], imgNum, 4, 3000, (imgContent) => {
-                ctx.drawImage(imgContent, 0, 0, 1900, 350, 0, 0, 1900, 350)
+                ctx.drawImage(imgContent, 0, 0, width, oneline, 0, 0, width, oneline)
             })
             spin.imgSpining(imgsUrls[1], imgsUrls[0], imgNum, 2, 3000, (imgContent) => {
-                ctx.drawImage(imgContent, 0, 350, 1900, 300, 0, 350, 1900, 300);
+                ctx.drawImage(imgContent, 0, oneline, width, twoline, 0, oneline, width, twoline);
             });
             spin.imgSpining(imgsUrls[1], imgsUrls[0], imgNum, 4, 3000, (imgContent) => {
-                ctx.drawImage(imgContent, 0, 650, 1900, 410, 0, 650, 1900, 410)
+                ctx.drawImage(imgContent, 0, oneline + twoline, width, threeline, 0, oneline + twoline, width, threeline);
             })
         }
     }
