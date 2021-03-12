@@ -53,7 +53,7 @@ module.exports = {
                     callback(imgsArr1[imgIndex]);
                 }
                 imgIndex--;
-            })
+            }, speed);
         } else if (drection == 4) { //左
             if (imgIndex > length / 2) {
                 speed = Math.floor(time / (length - 1 + (length - imgIndex)));
@@ -73,7 +73,7 @@ module.exports = {
                     callback(imgsArr1[imgIndex]);
                 }
                 imgIndex++;
-            });
+            }, speed);
         }
     }
 }

@@ -15,8 +15,8 @@ window.onload = function () {
     var text = document.getElementsByClassName("text")[0];//测试显示内容标签，测试完后删除
     // loadImage(data.one);
     var c = document.getElementById("myCanvas");
-    c.width= document.body.clientWidth  ;
-    c.height = document.body.clientWidth * 0.55 ;
+    c.width = document.documentElement.clientWidth;
+    c.height = document.documentElement.clientHeight;
     var ctx = c.getContext("2d")
     var canvasWidth = c.width;
     var canvasHeight = c.height;
@@ -89,7 +89,7 @@ window.onload = function () {
             if (moveMouse.drection == 2) { // right 移动三个像素
                 imgNum = imgNum - 1 > 0 ? imgNum - 1 : imgsUrl.length - 1;
                 ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-                ctx.drawImage(imgsUrl[imgNum], 0, 0,canvasWidth,canvasHeight);
+                ctx.drawImage(imgsUrl[imgNum], 0, 0, canvasWidth, canvasHeight);
                 moveMouse.oldX = newX;
             } else if (moveMouse.drection == 4) { // left 移动三个像素 
                 imgNum = imgNum < imgsUrl.length - 1 ? imgNum + 1 : 0;
@@ -154,37 +154,68 @@ window.onload = function () {
     }
 
     let qie = document.getElementById("qie");
+    // qie.onclick = () => {
+    //     let height = c.height;
+    //     let width = c.width;
+    //     let oneline = Math.floor(height * 0.3);
+    //     let twoline = Math.floor(height * 0.3);
+    //     let threeline = height - oneline - twoline;
+    //     moveMouse.status = moveMouse.status == 1 ? 0 : 1;
+    //     if (moveMouse.status == 0) {
+    //         spin.imgSpining(imgsUrls[0], imgsUrls[1], imgNum, 4, 3000, (imgContent) => {
+    //             ctx.drawImage(imgContent, 0, 0, imgContent.width, Math.floor(imgContent.height * 0.3), 0, 0, width, oneline)
+    //         })
+    //         spin.imgSpining(imgsUrls[0], imgsUrls[1], imgNum, 2, 3000, (imgContent) => {
+    //             ctx.drawImage(imgContent, 0, Math.floor(imgContent.height * 0.3), imgContent.width, Math.floor(imgContent.height * 0.3), 0, oneline, width, twoline);
+    //         });
+    //         spin.imgSpining(imgsUrls[0], imgsUrls[1], imgNum, 4, 3000, (imgContent) => {
+    //             ctx.drawImage(imgContent, 0, Math.floor(imgContent.height * 0.6), imgContent.width, Math.floor(imgContent.height * 0.4), 0, oneline + twoline, width, threeline)
+    //         })
+    //     } else {
+    //         spin.imgSpining(imgsUrls[1], imgsUrls[0], imgNum, 4, 3000, (imgContent) => {
+    //             ctx.drawImage(imgContent, 0, 0, imgContent.width, Math.floor(imgContent.height * 0.3), 0, 0, width, oneline)
+    //         })
+    //         spin.imgSpining(imgsUrls[1], imgsUrls[0], imgNum, 2, 3000, (imgContent) => {
+    //             ctx.drawImage(imgContent, 0, Math.floor(imgContent.height * 0.3), imgContent.width, Math.floor(imgContent.height * 0.3), 0, oneline, width, twoline);
+    //         });
+    //         spin.imgSpining(imgsUrls[1], imgsUrls[0], imgNum, 4, 3000, (imgContent) => {
+    //             ctx.drawImage(imgContent, 0, Math.floor(imgContent.height * 0.6), imgContent.width, Math.floor(imgContent.height * 0.4), 0, oneline + twoline, width, threeline);
+    //         })
+    //     }
+    // }
     qie.onclick = () => {
-        let height = c.height;
-        let width = c.width;
-        let oneline = Math.floor(height * 0.3);
-        let twoline = Math.floor(height * 0.3);
-        let threeline = height - oneline - twoline;
-        console.log(height)
-        console.log(width)
-        console.log(oneline)
-        console.log(twoline)
-        console.log(threeline);
+        minWidth();
+    }
+    function minWidth() {
+        // 首先需要获取到图片长宽比，和画布长宽比（高度固定100%）
+        // 
+        let height = c.height;// 画布高度
+        let width = c.width; // 画布宽度
+        let oneline = Math.floor(height * 0.3); // 显示第一行的高度
+        let twoline = Math.floor(height * 0.3); // 显示第二行的高度
+        let threeline = height - oneline - twoline; // 显示第三行的高度
         moveMouse.status = moveMouse.status == 1 ? 0 : 1;
         if (moveMouse.status == 0) {
             spin.imgSpining(imgsUrls[0], imgsUrls[1], imgNum, 4, 3000, (imgContent) => {
-                ctx.drawImage(imgContent, 0, 0, width, oneline, 0, 0, width, oneline)
+                let widthRatio=imgContent.width/width;
+                let heightRatio=imgContent.height/height;
+                ctx.drawImage(imgContent, Math.floor((imgContent.width - width) / 2), 0, width, Math.floor(imgContent.height * 0.3), 0, 0, width, oneline);
             })
             spin.imgSpining(imgsUrls[0], imgsUrls[1], imgNum, 2, 3000, (imgContent) => {
-                ctx.drawImage(imgContent, 0, oneline, width, twoline, 0, oneline, width, twoline);
+                ctx.drawImage(imgContent, Math.floor((imgContent.width - width) / 2), Math.floor(imgContent.height * 0.3), width, Math.floor(imgContent.height * 0.3), 0, oneline, width, twoline);
             });
             spin.imgSpining(imgsUrls[0], imgsUrls[1], imgNum, 4, 3000, (imgContent) => {
-                ctx.drawImage(imgContent, 0, oneline + twoline, width, threeline, 0, oneline + twoline, width, threeline)
+                ctx.drawImage(imgContent, Math.floor((imgContent.width - width) / 2), Math.floor(imgContent.height * 0.6), width, Math.floor(imgContent.height * 0.4), 0, oneline + twoline, width, threeline)
             })
         } else {
             spin.imgSpining(imgsUrls[1], imgsUrls[0], imgNum, 4, 3000, (imgContent) => {
-                ctx.drawImage(imgContent, 0, 0, width, oneline, 0, 0, width, oneline)
+                ctx.drawImage(imgContent, Math.floor((imgContent.width - width) / 2), 0, width, Math.floor(imgContent.height * 0.3), 0, 0, width, oneline)
             })
             spin.imgSpining(imgsUrls[1], imgsUrls[0], imgNum, 2, 3000, (imgContent) => {
-                ctx.drawImage(imgContent, 0, oneline, width, twoline, 0, oneline, width, twoline);
+                ctx.drawImage(imgContent, Math.floor((imgContent.width - width) / 2), Math.floor(imgContent.height * 0.3), width, Math.floor(imgContent.height * 0.3), 0, oneline, width, twoline);
             });
             spin.imgSpining(imgsUrls[1], imgsUrls[0], imgNum, 4, 3000, (imgContent) => {
-                ctx.drawImage(imgContent, 0, oneline + twoline, width, threeline, 0, oneline + twoline, width, threeline);
+                ctx.drawImage(imgContent, Math.floor((imgContent.width - width) / 2), Math.floor(imgContent.height * 0.6), width, Math.floor(imgContent.height * 0.4), 0, oneline + twoline, width, threeline);
             })
         }
     }
