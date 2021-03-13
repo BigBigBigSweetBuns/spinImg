@@ -53,6 +53,9 @@ var spin = {
     },
     // imgSpinAdd()
     // 第一组图片,第二组图片,当前索引,持续时间,回调
+    // 实现：
+    // 调用 spinIdxAdd() index 增加。在 <= 50% 的时候显示第一套图，> 50% 显示下一套图
+    // 回调 当前index图片内容
     imgSpinAdd: function (imgsArr1, imgsArr2, current_index, time, callback) { // 图片旋转的到一半切换到第二份图 
         let length = Math.min(imgsArr1.length, imgsArr2.length);
         let loop = current_index > length / 2 ? true : false;
@@ -69,7 +72,13 @@ var spin = {
             }
         })
     },
-    imgSpinLess: function (imgsArr1, imgsArr2, current_index, time, callback) { // 数组反顺序，图片旋转的到一半切换到第二份图 
+    // imgSpinLess()
+    // 第一组图片,第二组图片,当前索引,持续时间,回调
+    // 实现：
+    // 将持续转化为速度 传递给 spinIdxLess()
+    // 调用 spinIdxLess() index 减少。在 >= 50% 的时候显示第一套图，< 50% 显示下一套图
+    // 回调 当前index图片内容
+    imgSpinLess: function (imgsArr1, imgsArr2, current_index, time, callback) { // 图片旋转的到一半切换到第二份图 
         let length = Math.min(imgsArr1.length, imgsArr2.length);
         let loop = current_index < length / 2 ? true : false; // 是否旋转一圈多
         let num = loop ? length + current_index : length - current_index;
