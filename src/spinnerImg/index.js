@@ -156,6 +156,12 @@ window.onload = function () {
     let qie = document.getElementById("qie");
     qie.onclick = () => {
         cs();
+        spinleftline(600, 600, 3, 3, 0);
+        spinleftline(630, 630, 3, 3, 1);
+        spinleftline(660, 660, 3, 3, 0);
+    }
+    function getCanvasInfo() {
+        return c
     }
     function cs() {
         spin.imgSpinAdd(imgsUrls[0], imgsUrls[1], imgNum, 1500, (imgContent) => {
@@ -164,6 +170,23 @@ window.onload = function () {
         spin.imgSpinLess(imgsUrls[1], imgsUrls[0], imgNum, 1500, (imgContent) => {
             ctx.drawImage(imgContent, 0, 300, imgContent.width, 300, 0, 300, c.width, 300);
         })
+    }
+    //
+    // 画布大于 16:9 时，确保图片 width  100%
+    // 画布小于 16:9 时，确保图片 height 100%
+
+    // 参数化 设置一行的图片在画布中的展示
+    function spinleftline(sy, y, img_height, canvasHeight, direction) {
+        let canvas = getCanvasInfo();
+        if (direction == 0) { // 左 
+            spin.imgSpinAdd(imgsUrls[0], imgsUrls[1], imgNum, 1500, (imgContent) => {
+                ctx.drawImage(imgContent, 0, sy, imgContent.width, img_height, 0, y, canvas.width, canvasHeight);
+            });
+        } else if (direction == 1) { // 右
+            spin.imgSpinLess(imgsUrls[0], imgsUrls[1], imgNum, 1500, (imgContent) => {
+                ctx.drawImage(imgContent, 0, sy, imgContent.width, img_height, 0, y, canvas.width, canvasHeight);
+            });
+        }
     }
     function minWidth() {
         // 首先需要获取到图片长宽比，和画布长宽比（高度固定100%）
