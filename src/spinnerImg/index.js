@@ -179,9 +179,7 @@ window.onload = function () {
         })
     }
     //
-    // 画布大于 16:9 时，确保图片 width  100%
-    // 画布小于 16:9 时，确保图片 height 100%
-
+    
     // 参数化 设置一行的图片在画布中的展示
     function spinleftline(sy, y, img_height, canvasHeight, direction) {
         let canvas = getCanvasInfo();
@@ -253,9 +251,8 @@ window.onload = function () {
     c.onmousemove = function (event) {
         event = event || window.event;
         moveMouse.clientX = event.clientX;
-        if (Math.abs(event.clientX - moveMouse.oldX) > 15) {
-            console.log("abs");
-            moveMouse.drection = event.clientX - moveMouse.oldX > 0 ? 1 : 0;
+        if (Math.abs(event.clientX - moveMouse.oldX) > 15 && moveMouse.onClick) {
+            moveMouse.drection = event.clientX - moveMouse.oldX > 0 ? 0 : 1;
             spinnerImgData.showImg(moveMouse.drection);
             moveMouse.oldX = event.clientX;
         }

@@ -11,15 +11,17 @@ let spinnerImg = function (imgData, canvas) {
         this.ratio = this.isRatio();
     };
     // 根据方向，绘画图片
-    // 0:逆时针方向旋转
-    // 1:顺时针旋转
+    // 0:顺时针旋转
+    // 1:逆时针方向旋转
+    // 需要再添加一个function 判断 裁剪 width / height ，当前只裁剪了 width 
     this.showImg = function (drection) {
+        console.log("drection", drection);
         if (drection == 0) {
             this.changeImgIndex(0)
-            this.ctx.drawImage(this.imgData[0][this.imgsIndex], 0, 0, this.imgWidth, this.imgHeight, (this.ratio * this.imgWidth - this.canvasInfo.width) / 2, (this.ratio * this.imgHeight - this.canvasInfo.height) / 2, this.canvasInfo.width, this.canvasInfo.height);
+            this.ctx.drawImage(this.imgData[this.cutover][this.imgsIndex], 0, 0, this.imgWidth, this.imgHeight, - (this.ratio * this.imgWidth - this.canvasInfo.width) / 2, - (this.ratio * this.imgHeight - this.canvasInfo.height) / 2, this.ratio * this.imgWidth, this.canvasInfo.height)
         } else if (drection == 1) {
             this.changeImgIndex(1)
-            this.ctx.drawImage(this.imgData[0][this.imgsIndex], 0, 0, this.imgWidth, this.imgHeight, (this.ratio * this.imgWidth - this.canvasInfo.width) / 2, (this.ratio * this.imgHeight - this.canvasInfo.height) / 2, this.canvasInfo.width, this.canvasInfo.height)
+            this.ctx.drawImage(this.imgData[this.cutover][this.imgsIndex], 0, 0, this.imgWidth, this.imgHeight, - (this.ratio * this.imgWidth - this.canvasInfo.width) / 2, - (this.ratio * this.imgHeight - this.canvasInfo.height) / 2, this.ratio * this.imgWidth, this.canvasInfo.height)
         }
     };
     // 索引是 ++ 还是 --
@@ -29,12 +31,14 @@ let spinnerImg = function (imgData, canvas) {
     this.changeImgIndex = function (status) {
         let length = this.imgData[this.cutover].length;
         if (status == 0)
-            this.imgsIndex = this.imgsIndex - 1 == 0 ? length : 0;
+            this.imgsIndex = this.imgsIndex == 0 ? length - 1 : this.imgsIndex - 1;
         else if (status == 1)
             this.imgsIndex = this.imgsIndex + 1 == length ? 0 : this.imgsIndex + 1;
         else
             console.error("changeImgIndex输入的状态值不是 0 | 1");
     };
+    // image.width proportional change with canvas.width , image.height >= canvas.width , use ratioWidth
+    // image.height proportional change with canvas.height , image width >= canvas width , use ratioHeight
     this.isRatio = function () {
         let ratioWidth = this.canvasInfo.width / this.imgWidth;
         let ratioHeight = this.canvasInfo.height / this.imgHeight;
