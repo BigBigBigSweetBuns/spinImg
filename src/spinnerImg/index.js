@@ -13,7 +13,6 @@ window.onload = function () {
     var box2 = document.getElementsByClassName("box2")[0];
     var speedBox = document.getElementsByClassName("speed")[0];
     var text = document.getElementsByClassName("text")[0];//测试显示内容标签，测试完后删除
-    // loadImage(data.one);
     var c = document.getElementById("myCanvas");
     c.width = document.documentElement.clientWidth;
     c.height = document.documentElement.clientHeight;
@@ -35,16 +34,16 @@ window.onload = function () {
     //     imgsUrls[0] = res;
     //     console.log(imgsUrls[0])
     // });
-    waitImgloadOne(dataLoad.getDataOne(), (res) => {
+    waitImgloadZero(dataLoad.getDataZero(), (res) => {
         imgsUrls[0] = res;
         console.log(imgsUrls[0])
         // 第二份图
-        waitImgloadTwo(dataLoad.getDataTwo(), (res) => {
+        waitImgloadOne(dataLoad.getDataOne(), (res) => {
             imgsUrls[1] = res;
             console.log(imgsUrls[1])
         });
     });
-    function waitImgloadOne(arrUrls, callback) {
+    function waitImgloadZero(arrUrls, callback) {
         let promiseArr = [];
         for (let i = 0; i < arrUrls.length; i++) {
             promiseArr.push(new Promise((resolve) => {
@@ -63,7 +62,7 @@ window.onload = function () {
             callback(res)
         });
     }
-    function waitImgloadTwo(arrUrls, callback) {
+    function waitImgloadOne(arrUrls, callback) {
         let promiseArr = [];
         for (let i = 0; i < arrUrls.length; i++) {
             promiseArr.push(new Promise((resolve) => {
