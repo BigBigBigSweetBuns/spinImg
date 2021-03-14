@@ -3,6 +3,9 @@ import "./index.scss";
 import dataLoad from "./js/dataLoad";
 import styleLoading from "./js/styleLoading";
 import spin from "./js/spin";
+
+import spinnerImg from "./js/spinnerImg";
+
 var imgNum = 0;
 
 var imgsUrls = [[], []];
@@ -10,6 +13,7 @@ var imgsUrls = [[], []];
 
 
 window.onload = function () {
+    var spinnerImgData = null;
     var box2 = document.getElementsByClassName("box2")[0];
     var speedBox = document.getElementsByClassName("speed")[0];
     var text = document.getElementsByClassName("text")[0];//测试显示内容标签，测试完后删除
@@ -38,9 +42,13 @@ window.onload = function () {
         imgsUrls[0] = res;
         console.log(imgsUrls[0])
         // 第二份图
-        waitImgloadOne(dataLoad.getDataOne(), (res) => {
-            imgsUrls[1] = res;
+        waitImgloadOne(dataLoad.getDataOne(), (res1) => {
+            imgsUrls[1] = res1;
             console.log(imgsUrls[1])
+            spinnerImgData = new spinnerImg([res, res1], c);
+            spinnerImgData.init();
+            // data.cs();
+            console.log(spinnerImgData.ratio);
         });
     });
     function waitImgloadZero(arrUrls, callback) {
@@ -245,12 +253,17 @@ window.onload = function () {
     c.onmousemove = function (event) {
         event = event || window.event;
         moveMouse.clientX = event.clientX;
-        moveMouse.drection = moveMouse.clientX - moveMouse.oldX > 0 ? 2 : 4;
+        if (Math.abs(event.clientX - moveMouse.oldX) > 15) {
+            console.log("abs");
+            moveMouse.drection = event.clientX - moveMouse.oldX > 0 ? 1 : 0;
+            spinnerImgData.showImg(moveMouse.drection);
+            moveMouse.oldX = event.clientX;
+        }
         if (moveMouse.status == 0) {
-            showImg(event.clientX, event.clientY, imgsUrls[0]);
+            // showImg(event.clientX, event.clientY, imgsUrls[0]);
         }
         if (moveMouse.status == 1) {
-            showImg(event.clientX, event.clientY, imgsUrls[1]);
+            // showImg(event.clientX, event.clientY, imgsUrls[1]);
         }
     }
 }
