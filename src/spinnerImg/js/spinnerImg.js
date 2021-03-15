@@ -6,7 +6,7 @@ let spinnerImg = function (imgData, canvas) {
     this.ctx = this.canvasInfo.getContext("2d"); // 画布环境
     this.cutover = 0;//默认使用第一份图  0:第一份 1:第二份 
     this.imgsIndex = 0; // 当前图片选择到到第几索引
-    this.ratio = null; // 使用那种比值能铺满整个屏幕
+    this.ratio = { name: "null", value: "" }; // 使用那种比值能铺满整个屏幕
     this.init = function () {
         this.ratio = this.isRatio();
     };
@@ -15,15 +15,16 @@ let spinnerImg = function (imgData, canvas) {
     // 1:逆时针方向旋转
     // 需要再添加一个function 判断 裁剪 width / height ，当前只裁剪了 width 
     this.showImg = function (drection) {
-        console.log("drection", drection);
-        if (drection == 0) {
-            this.changeImgIndex(0)
-            this.ctx.drawImage(this.imgData[this.cutover][this.imgsIndex], 0, 0, this.imgWidth, this.imgHeight, - (this.ratio * this.imgWidth - this.canvasInfo.width) / 2, - (this.ratio * this.imgHeight - this.canvasInfo.height) / 2, this.ratio * this.imgWidth, this.canvasInfo.height)
-        } else if (drection == 1) {
-            this.changeImgIndex(1)
-            this.ctx.drawImage(this.imgData[this.cutover][this.imgsIndex], 0, 0, this.imgWidth, this.imgHeight, - (this.ratio * this.imgWidth - this.canvasInfo.width) / 2, - (this.ratio * this.imgHeight - this.canvasInfo.height) / 2, this.ratio * this.imgWidth, this.canvasInfo.height)
-        }
+        this.changeImgIndex(drection)
+        this.drawImage(this.cutover, this.imgsIndex, this.ratio)
     };
+    this.drawImage = function (cutover, imgsIndex, ratio) {
+        if (ratio.name = "ratioHeight") {
+            this.ctx.drawImage(this.imgData[cutover][imgsIndex], 0, 0, this.imgWidth, this.imgHeight, - (ratio.value * this.imgWidth - this.canvasInfo.width) / 2, - (ratio.value * this.imgHeight - this.canvasInfo.height) / 2, ratio.value * this.imgWidth, ratio.value * this.imgHeight)
+        } else if (ratio.name = "ratioWidth") {
+            this.ctx.drawImage(this.imgData[cutover][imgsIndex], 0, 0, this.imgWidth, this.imgHeight, - (ratio.value * this.imgWidth - this.canvasInfo.width) / 2, - (ratio.value * this.imgHeight - this.canvasInfo.height) / 2, ratio.value * this.imgWidth, ratio.value * this.imgHeight)
+        }
+    }
     // 索引是 ++ 还是 --
     // 同时根据
     // 0:--
@@ -45,10 +46,10 @@ let spinnerImg = function (imgData, canvas) {
         console.log("isRatio");
         if (ratioWidth * this.imgWidth == this.canvasInfo.width && ratioWidth * this.imgHeight > this.canvasInfo.height) {
             console.log("ratioWidth");
-            return ratioWidth;
+            return { name: "ratioWidth", value: ratioWidth };
         } else if (ratioHeight * this.imgHeight == this.canvasInfo.height && ratioHeight * this.imgWidth > this.canvasInfo.width) {
             console.log("ratioHeight");
-            return ratioHeight;
+            return { name: "ratioHeight", value: ratioHeight };
         } else {
             console.error("isRatio 判断出错,没有找到合适的Ratio");
         }
