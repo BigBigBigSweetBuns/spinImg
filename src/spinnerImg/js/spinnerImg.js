@@ -1,3 +1,6 @@
+const spin = require("./spin.js");
+
+
 let spinnerImg = function (imgData, canvas) {
     this.imgData = imgData; //[array,array]
     this.imgWidth = imgData[0][0].width;
@@ -16,15 +19,28 @@ let spinnerImg = function (imgData, canvas) {
     // 需要再添加一个function 判断 裁剪 width / height ，当前只裁剪了 width 
     this.showImg = function (drection) {
         this.changeImgIndex(drection)
-        this.drawImage(this.cutover, this.imgsIndex, this.ratio)
+        this.drawImage(this.imgData[this.cutover], this.imgsIndex, this.ratio)
     };
-    this.drawImage = function (cutover, imgsIndex, ratio) {
+    this.drawImage = function (imgData, imgsIndex, ratio) {
         if (ratio.name = "ratioHeight") {
-            this.ctx.drawImage(this.imgData[cutover][imgsIndex], 0, 0, this.imgWidth, this.imgHeight, - (ratio.value * this.imgWidth - this.canvasInfo.width) / 2, - (ratio.value * this.imgHeight - this.canvasInfo.height) / 2, ratio.value * this.imgWidth, ratio.value * this.imgHeight)
+            this.ctx.drawImage(imgData[imgsIndex], 0, 0, this.imgWidth, this.imgHeight, - (ratio.value * this.imgWidth - this.canvasInfo.width) / 2, - (ratio.value * this.imgHeight - this.canvasInfo.height) / 2, ratio.value * this.imgWidth, ratio.value * this.imgHeight)
         } else if (ratio.name = "ratioWidth") {
-            this.ctx.drawImage(this.imgData[cutover][imgsIndex], 0, 0, this.imgWidth, this.imgHeight, - (ratio.value * this.imgWidth - this.canvasInfo.width) / 2, - (ratio.value * this.imgHeight - this.canvasInfo.height) / 2, ratio.value * this.imgWidth, ratio.value * this.imgHeight)
+            this.ctx.drawImage(imgData[imgsIndex], 0, 0, this.imgWidth, this.imgHeight, - (ratio.value * this.imgWidth - this.canvasInfo.width) / 2, - (ratio.value * this.imgHeight - this.canvasInfo.height) / 2, ratio.value * this.imgWidth, ratio.value * this.imgHeight)
+        } else {
+            console.error("无法绘制图片，获取不到ratio data");
         }
-    }
+    };
+    this.drawImageLine = function (imgContent, ratio, sy, y, height) {
+        if (ratio.name = "ratioHeight") {
+            // 裁剪高度为原始图片的比值*展示高度
+            console.log("裁剪:" + ratio.value + " ratio: " + height / ratio.value + " y: " + y / ratio.value);
+            this.ctx.drawImage(imgContent, 0, y / ratio.value, this.imgWidth, height / ratio.value, -(ratio.value * this.imgWidth - this.canvasInfo.width) / 2, y, ratio.value * this.imgWidth, height);
+        } else if (ratio.name = "ratioWidth") {
+            this.ctx.drawImage(imgContent, 0, sy, this.imgWidth, height / rtaio.value, - (ratio.value * this.imgWidth - this.canvasInfo.width) / 2, y, ratio.value * this.imgWidth, height)
+        } else {
+            console.error("无法绘制图片，获取不到ratio data");
+        }
+    };
     // 索引是 ++ 还是 --
     // 同时根据
     // 0:--
@@ -48,18 +64,35 @@ let spinnerImg = function (imgData, canvas) {
             console.log("ratioWidth");
             return { name: "ratioWidth", value: ratioWidth };
         } else if (ratioHeight * this.imgHeight == this.canvasInfo.height && ratioHeight * this.imgWidth > this.canvasInfo.width) {
-            console.log("ratioHeight");
+            console.log("ratioHeight", ratioHeight);
+            console.log(this.canvasInfo.height / ratioHeight);
+            console.log("this.imgHeight", this.imgHeight);
             return { name: "ratioHeight", value: ratioHeight };
         } else {
             console.error("isRatio 判断出错,没有找到合适的Ratio");
         }
-    }
-    this.cs = function () {
-        console.log("width:" + this.canvasInfo.width + " height:" + this.canvasInfo.height);
-        console.log("ratio");
-        console.log("ratioWidth:", this.ratioWidth() * imgData.zero[0].width, this.ratioWidth() * imgData.zero[0].height,);
-        console.log("ratioHeight:", this.ratioHeight() * imgData.zero[0].width, this.ratioHeight() * imgData.zero[0].height,);
     };
+    this.spinLine = function (imgDataOne, imgDataTwo, sy, y, showHeight, time, drection) {
+        console.log("spinLine");
+        if (drection == 0) {
+            spin.imgSpinAdd(imgDataOne, imgDataTwo, this.imgsIndex, time, (imgContent) => {
+                this.drawImageLine(imgContent, this.ratio, sy, y, showHeight);
+            });
+        } else if (drection == 1) {
+            spin.imgSpinLess(imgDataOne, imgDataTwo, this.imgsIndex, time, (imgContent) => {
+                this.drawImageLine(imgContent, this.ratio, sy, y, showHeight);
+            });
+        }
+        this.imgsIndex = 0;
+    };
+    this.clickSpin = function () {
+        console.log("clickSpin");
+        let time = 1500;
+        this.spinLine(imgData[0], this.imgData[1], 100, 100, 100, time, 0);
+        this.spinLine(imgData[0], this.imgData[1], 100, 200, 100, time, 1);
+        this.spinLine(imgData[0], this.imgData[1], 100, 300, 100, time, 0);
+        this.spinLine(imgData[0], this.imgData[1], 100, 400, 100, time, 1);
+    }
 
 }
 module.exports = spinnerImg;

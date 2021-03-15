@@ -1,10 +1,10 @@
-import "./index.scss";
+require("./index.scss");
 
-import dataLoad from "./js/dataLoad";
-import styleLoading from "./js/styleLoading";
-import spin from "./js/spin";
+const dataLoad = require("./js/dataLoad");
+const styleLoading = require("./js/styleLoading");
+// const spin = require("./js/spin");
 
-import spinnerImg from "./js/spinnerImg";
+const spinnerImg = require("./js/spinnerImg");
 
 var imgNum = 0;
 
@@ -163,23 +163,18 @@ window.onload = function () {
     let qie = document.getElementById("qie");
     qie.onclick = () => {
         cs();
-        spinleftline(600, 600, 3, 3, 0);
-        spinleftline(630, 630, 3, 3, 1);
-        spinleftline(660, 660, 3, 3, 0);
+        // spinleftline(600, 600, 3, 3, 0);
+        // spinleftline(630, 630, 3, 3, 1);
+        // spinleftline(660, 660, 3, 3, 0);
     }
     function getCanvasInfo() {
         return c
     }
     function cs() {
-        spin.imgSpinAdd(imgsUrls[0], imgsUrls[1], imgNum, 1500, (imgContent) => {
-            ctx.drawImage(imgContent, 0, 0, imgContent.width, 300, 0, 0, c.width, 300);
-        });
-        spin.imgSpinLess(imgsUrls[1], imgsUrls[0], imgNum, 1500, (imgContent) => {
-            ctx.drawImage(imgContent, 0, 300, imgContent.width, 300, 0, 300, c.width, 300);
-        })
+        spinnerImgData.clickSpin();
     }
     //
-    
+
     // 参数化 设置一行的图片在画布中的展示
     function spinleftline(sy, y, img_height, canvasHeight, direction) {
         let canvas = getCanvasInfo();
@@ -191,38 +186,6 @@ window.onload = function () {
             spin.imgSpinLess(imgsUrls[0], imgsUrls[1], imgNum, 1500, (imgContent) => {
                 ctx.drawImage(imgContent, 0, sy, imgContent.width, img_height, 0, y, canvas.width, canvasHeight);
             });
-        }
-    }
-    function minWidth() {
-        // 首先需要获取到图片长宽比，和画布长宽比（高度固定100%）
-        let height = c.height;// 画布高度
-        let width = c.width; // 画布宽度
-        let oneline = Math.floor(height * 0.3); // 显示第一行的高度
-        let twoline = Math.floor(height * 0.3); // 显示第二行的高度
-        let threeline = height - oneline - twoline; // 显示第三行的高度
-        moveMouse.status = moveMouse.status == 1 ? 0 : 1;
-        if (moveMouse.status == 0) {
-            spin.imgSpining(imgsUrls[0], imgsUrls[1], imgNum, 4, 3000, (imgContent) => {
-                let widthRatio = imgContent.width / width;
-                let heightRatio = imgContent.height / height;
-                ctx.drawImage(imgContent, Math.floor((imgContent.width - width) / 2), 0, width, Math.floor(imgContent.height * 0.3), 0, 0, width, oneline);
-            })
-            spin.imgSpining(imgsUrls[0], imgsUrls[1], imgNum, 2, 3000, (imgContent) => {
-                ctx.drawImage(imgContent, Math.floor((imgContent.width - width) / 2), Math.floor(imgContent.height * 0.3), width, Math.floor(imgContent.height * 0.3), 0, oneline, width, twoline);
-            });
-            spin.imgSpining(imgsUrls[0], imgsUrls[1], imgNum, 4, 3000, (imgContent) => {
-                ctx.drawImage(imgContent, Math.floor((imgContent.width - width) / 2), Math.floor(imgContent.height * 0.6), width, Math.floor(imgContent.height * 0.4), 0, oneline + twoline, width, threeline)
-            })
-        } else {
-            spin.imgSpining(imgsUrls[1], imgsUrls[0], imgNum, 4, 3000, (imgContent) => {
-                ctx.drawImage(imgContent, Math.floor((imgContent.width - width) / 2), 0, width, Math.floor(imgContent.height * 0.3), 0, 0, width, oneline)
-            })
-            spin.imgSpining(imgsUrls[1], imgsUrls[0], imgNum, 2, 3000, (imgContent) => {
-                ctx.drawImage(imgContent, Math.floor((imgContent.width - width) / 2), Math.floor(imgContent.height * 0.3), width, Math.floor(imgContent.height * 0.3), 0, oneline, width, twoline);
-            });
-            spin.imgSpining(imgsUrls[1], imgsUrls[0], imgNum, 4, 3000, (imgContent) => {
-                ctx.drawImage(imgContent, Math.floor((imgContent.width - width) / 2), Math.floor(imgContent.height * 0.6), width, Math.floor(imgContent.height * 0.4), 0, oneline + twoline, width, threeline);
-            })
         }
     }
 
@@ -255,12 +218,6 @@ window.onload = function () {
             moveMouse.drection = event.clientX - moveMouse.oldX > 0 ? 0 : 1;
             spinnerImgData.showImg(moveMouse.drection);
             moveMouse.oldX = event.clientX;
-        }
-        if (moveMouse.status == 0) {
-            // showImg(event.clientX, event.clientY, imgsUrls[0]);
-        }
-        if (moveMouse.status == 1) {
-            // showImg(event.clientX, event.clientY, imgsUrls[1]);
         }
     }
 }
