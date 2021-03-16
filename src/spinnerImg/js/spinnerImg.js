@@ -30,17 +30,17 @@ let spinnerImg = function (imgData, canvas) {
             console.error("无法绘制图片，获取不到ratio data");
         }
     };
-    this.drawImageLine = function (imgContent, ratio, sy, y, height) {
+    // 负责画图
+    this.drawImageFor = function (imgContent, sx, sy, swidth, sheight, x, y, width, height) {
         if (ratio.name = "ratioHeight") {
-            // 裁剪高度为原始图片的比值*展示高度
-            console.log("裁剪:" + ratio.value + " ratio: " + height / ratio.value + " y: " + y / ratio.value);
-            this.ctx.drawImage(imgContent, 0, y / ratio.value, this.imgWidth, height / ratio.value, -(ratio.value * this.imgWidth - this.canvasInfo.width) / 2, y, ratio.value * this.imgWidth, height);
+            this.ctx.drawImage(imgContent, sx, sy, swidth, sheight, x, y, width, height);
         } else if (ratio.name = "ratioWidth") {
-            this.ctx.drawImage(imgContent, 0, sy, this.imgWidth, height / rtaio.value, - (ratio.value * this.imgWidth - this.canvasInfo.width) / 2, y, ratio.value * this.imgWidth, height)
+            this.ctx.drawImage(imgContent, sx, sy, swidth, sheight, x, y, width, height);
         } else {
             console.error("无法绘制图片，获取不到ratio data");
         }
-    };
+    }
+
     // 索引是 ++ 还是 --
     // 同时根据
     // 0:--
@@ -73,7 +73,6 @@ let spinnerImg = function (imgData, canvas) {
         }
     };
     this.spinLine = function (imgDataOne, imgDataTwo, sy, y, showHeight, time, drection) {
-        console.log("spinLine");
         if (drection == 0) {
             spin.imgSpinAdd(imgDataOne, imgDataTwo, this.imgsIndex, time, (imgContent) => {
                 this.drawImageLine(imgContent, this.ratio, sy, y, showHeight);
@@ -87,11 +86,73 @@ let spinnerImg = function (imgData, canvas) {
     };
     this.clickSpin = function () {
         console.log("clickSpin");
-        let time = 1500;
-        this.spinLine(imgData[0], this.imgData[1], 100, 100, 100, time, 0);
-        this.spinLine(imgData[0], this.imgData[1], 100, 200, 100, time, 1);
-        this.spinLine(imgData[0], this.imgData[1], 100, 300, 100, time, 0);
-        this.spinLine(imgData[0], this.imgData[1], 100, 400, 100, time, 1);
+        let imgsSpinData = new Array();
+        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.cutover, 1, 100, 100));
+        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.cutover, 0, 200, 100));
+        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.cutover, 1, 300, 100));
+        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.cutover, 0, 400, 100));
+        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.cutover, 1, 500, 100));
+        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.cutover, 0, 600, 100));
+        // imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.cutover, 1, 300, 100));
+        // imgsSpinData.push(this.getDrawimageParameters(this.imgData[1], this.cutover, 1, 400, 100));
+        console.log(imgsSpinData);
+        // this.ctx.drawImage(imgsSpinData[0].imgsData[0].imgContent, imgsSpinData[0].sx, imgsSpinData[0].sy, imgsSpinData[0].swidth, imgsSpinData[0].sheight, imgsSpinData[0].x, imgsSpinData[0].y, imgsSpinData[0].width, imgsSpinData[0].height);
+        let index = 0;
+        let right = 0;
+        let intarval = setInterval(() => {
+            if (index == imgsSpinData[0].imgsData.length - 1) {
+                clearInterval(intarval);
+            }
+            for (let i = 0; i < imgsSpinData.length; i++) {
+                this.ctx.drawImage(imgsSpinData[i].imgsData[index].imgContent, imgsSpinData[i].sx, imgsSpinData[i].sy, imgsSpinData[i].swidth, imgsSpinData[i].sheight, imgsSpinData[i].x, imgsSpinData[i].y, imgsSpinData[i].width, imgsSpinData[i].height);
+            }
+            index++;
+        }, 100)
+    };
+    // 获取到drawImg 所需的所有数据
+    this.getDrawimageParameters = function (imgData, current_idx, drection, sy, sheight) {
+        let imgsData = this.forImgIndex(imgData, current_idx, drection)
+        return {
+            imgsData: imgsData,
+            sx: 0,
+            sy: Math.floor(sy / this.ratio.value),
+            swidth: this.imgWidth,
+            sheight: Math.floor(sheight / this.ratio.value),
+            x: -(this.ratio.value * this.imgWidth - this.canvasInfo.width) / 2,
+            y: Math.floor(sy / this.ratio.value),
+            width: this.ratio.value * this.imgWidth,
+            height: Math.floor(sheight / this.ratio.value)
+        };
+    };
+    // 获取图片组索引
+    this.forImgIndex = function (imgData, current_idx, drection) {
+        let arr = new Array(), loop = true;
+        let length = imgData.length;
+        let output = current_idx
+        if (drection == 0) {
+            output = output == length - 1 ? 0 : output + 1;
+            loop = output - 1 > (length - 1) / 2 ? false : true;
+            while (true) {
+                if (loop && output == 0)
+                    break;
+                if (output == 0)
+                    loop = true
+                arr.push({ index: output, imgContent: imgData[output] });
+                output = output == length - 1 ? 0 : output + 1;
+            }
+        } else if (drection == 1) {
+            output = output == 0 ? length - 1 : output - 1;
+            loop = output + 1 < (length - 1) / 2 ? false : true;
+            while (true) {
+                if (loop && output == 0)
+                    break;
+                if (output == 0)
+                    loop = true
+                arr.push({ index: output, imgContent: imgData[output] });
+                output = output == 0 ? length - 1 : output - 1;
+            }
+        }
+        return arr;
     }
 
 }
