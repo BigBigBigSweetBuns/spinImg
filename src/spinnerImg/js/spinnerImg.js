@@ -30,16 +30,7 @@ let spinnerImg = function (imgData, canvas) {
             console.error("无法绘制图片，获取不到ratio data");
         }
     };
-    // 负责画图
-    this.drawImageFor = function (imgContent, sx, sy, swidth, sheight, x, y, width, height) {
-        if (ratio.name = "ratioHeight") {
-            this.ctx.drawImage(imgContent, sx, sy, swidth, sheight, x, y, width, height);
-        } else if (ratio.name = "ratioWidth") {
-            this.ctx.drawImage(imgContent, sx, sy, swidth, sheight, x, y, width, height);
-        } else {
-            console.error("无法绘制图片，获取不到ratio data");
-        }
-    }
+
 
     // 索引是 ++ 还是 --
     // 同时根据
@@ -87,31 +78,33 @@ let spinnerImg = function (imgData, canvas) {
     this.clickSpin = function () {
         console.log("clickSpin");
         let imgsSpinData = new Array();
-        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.cutover, 1, 100, 100));
-        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.cutover, 0, 200, 100));
-        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.cutover, 1, 300, 100));
-        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.cutover, 0, 400, 100));
-        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.cutover, 1, 500, 100));
-        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.cutover, 0, 600, 100));
-        // imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.cutover, 1, 300, 100));
-        // imgsSpinData.push(this.getDrawimageParameters(this.imgData[1], this.cutover, 1, 400, 100));
+        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.cutover, 0, 0, 100));
+        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.cutover, 1, 100, 100));
+        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.cutover, 0, 200, 100));
+        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.cutover, 1, 300, 100));
+        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.cutover, 0, 400, 100));
+        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.cutover, 1, 500, 100));
+        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.cutover, 0, 600, 100));
         console.log(imgsSpinData);
+        this.drawImageFor(imgsSpinData);
         // this.ctx.drawImage(imgsSpinData[0].imgsData[0].imgContent, imgsSpinData[0].sx, imgsSpinData[0].sy, imgsSpinData[0].swidth, imgsSpinData[0].sheight, imgsSpinData[0].x, imgsSpinData[0].y, imgsSpinData[0].width, imgsSpinData[0].height);
+    };
+    // 负责画图
+    this.drawImageFor = function (imgsData) {
         let index = 0;
-        let right = 0;
         let intarval = setInterval(() => {
-            if (index == imgsSpinData[0].imgsData.length - 1) {
+            if (index == imgsData[0].imgsData.length - 1) {
                 clearInterval(intarval);
             }
-            for (let i = 0; i < imgsSpinData.length; i++) {
-                this.ctx.drawImage(imgsSpinData[i].imgsData[index].imgContent, imgsSpinData[i].sx, imgsSpinData[i].sy, imgsSpinData[i].swidth, imgsSpinData[i].sheight, imgsSpinData[i].x, imgsSpinData[i].y, imgsSpinData[i].width, imgsSpinData[i].height);
+            for (let i = 0; i < imgsData.length; i++) {
+                this.ctx.drawImage(imgsData[i].imgsData[index].imgContent, imgsData[i].sx, imgsData[i].sy, imgsData[i].swidth, imgsData[i].sheight, imgsData[i].x, imgsData[i].y, imgsData[i].width, imgsData[i].height);
             }
             index++;
         }, 100)
-    };
+    }
     // 获取到drawImg 所需的所有数据
-    this.getDrawimageParameters = function (imgData, current_idx, drection, sy, sheight) {
-        let imgsData = this.forImgIndex(imgData, current_idx, drection)
+    this.getDrawimageParameters = function (imgDataOne, imgDataTwo, current_idx, drection, sy, sheight) {
+        let imgsData = this.forImgIndex(imgDataOne, imgDataTwo, current_idx, drection)
         return {
             imgsData: imgsData,
             sx: 0,
@@ -124,32 +117,41 @@ let spinnerImg = function (imgData, canvas) {
             height: Math.floor(sheight / this.ratio.value)
         };
     };
-    // 获取图片组索引
-    this.forImgIndex = function (imgData, current_idx, drection) {
+    // 获取图片组索引,到一半时切换下一套图
+    this.forImgIndex = function (imgDataOne, imgDataTwo, current_idx, drection) {
         let arr = new Array(), loop = true;
-        let length = imgData.length;
+        let length = imgDataOne.length;
+        let length2 = imgDataTwo.length;
         let output = current_idx
         if (drection == 0) {
             output = output == length - 1 ? 0 : output + 1;
             loop = output - 1 > (length - 1) / 2 ? false : true;
             while (true) {
-                if (loop && output == 0)
-                    break;
-                if (output == 0)
-                    loop = true
-                arr.push({ index: output, imgContent: imgData[output] });
+                if (output == 0) loop = true
+                if (loop && output > (length - 1) / 2) break;
+                arr.push({ index: output, imgContent: imgDataOne[output] });
                 output = output == length - 1 ? 0 : output + 1;
+            }
+            output = (length2 - 1) / 2;
+            while (true) {
+                arr.push({ index: output, imgContent: imgDataTwo[output] });
+                output = output == length2 - 1 ? 0 : output + 1;
+                if (loop && output == 0) break;
             }
         } else if (drection == 1) {
             output = output == 0 ? length - 1 : output - 1;
             loop = output + 1 < (length - 1) / 2 ? false : true;
             while (true) {
-                if (loop && output == 0)
-                    break;
-                if (output == 0)
-                    loop = true
-                arr.push({ index: output, imgContent: imgData[output] });
+                if (loop && output < (length - 1) / 2) break;
+                if (output == 0) loop = true
+                arr.push({ index: output, imgContent: imgDataOne[output] });
                 output = output == 0 ? length - 1 : output - 1;
+            }
+            output = (length2 - 1) / 2;
+            while (true) {
+                arr.push({ index: output, imgContent: imgDataTwo[output] });
+                output--;
+                if (loop && output == 0) break;
             }
         }
         return arr;
