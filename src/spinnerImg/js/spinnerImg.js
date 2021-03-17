@@ -1,5 +1,35 @@
 const spin = require("./spin.js");
-
+var IntervalY = function (height, sum, y) {
+    this.height = height;
+    this.sum = sum;
+    this.y = y;
+    this.lastY = 0;
+    this.i = 1;
+    this.lineHeight = Math.floor(this.height / this.sum);
+    this.builder = function () {
+        let obj = { y: 0, height: 0 };
+        let line = 0;
+        if (this.i == 1) {
+            line = this.lastY + this.lineHeight;
+            obj.y = this.lastY + y;
+            obj.height = line;
+            this.lastY = this.lastY + line;
+        } else if (this.i <= this.sum) {
+            line = Math.floor(this.height / this.sum * this.i - this.lastY);
+            obj.y = this.lastY + 1 + y;
+            obj.height = line;
+            if (this.i == this.sum) {  // 最后一位
+                line = Math.floor(this.height / this.sum * this.i - this.lastY);
+                obj.y = this.lastY + 1 + y;
+                obj.height = line;
+            }
+            this.lastY = this.lastY + 1 + line;
+        }
+        this.i += 1;
+        console.log("obj", obj);
+        return obj;
+    }
+}
 
 let spinnerImg = function (imgData, canvas) {
     this.imgData = imgData; //[array,array]
@@ -52,12 +82,8 @@ let spinnerImg = function (imgData, canvas) {
         let ratioHeight = this.canvasInfo.height / this.imgHeight;
         console.log("isRatio");
         if (ratioWidth * this.imgWidth == this.canvasInfo.width && ratioWidth * this.imgHeight > this.canvasInfo.height) {
-            console.log("ratioWidth");
             return { name: "ratioWidth", value: ratioWidth };
         } else if (ratioHeight * this.imgHeight == this.canvasInfo.height && ratioHeight * this.imgWidth > this.canvasInfo.width) {
-            console.log("ratioHeight", ratioHeight);
-            console.log(this.canvasInfo.height / ratioHeight);
-            console.log("this.imgHeight", this.imgHeight);
             return { name: "ratioHeight", value: ratioHeight };
         } else {
             console.error("isRatio 判断出错,没有找到合适的Ratio");
@@ -78,16 +104,15 @@ let spinnerImg = function (imgData, canvas) {
     this.clickSpin = function () {
         console.log("clickSpin");
         let imgsSpinData = new Array();
-        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.cutover, 0, 0, 100));
-        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.cutover, 1, 100, 100));
-        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.cutover, 0, 200, 100));
-        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.cutover, 1, 300, 100));
-        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.cutover, 0, 400, 100));
-        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.cutover, 1, 500, 100));
-        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.cutover, 0, 600, 100));
-        console.log(imgsSpinData);
+        let Interval = new IntervalY(this.canvasInfo.height, 7, 0);
+        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.cutover, 0, 0, 100, Interval.builder()));
+        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.cutover, 1, 100, 100, Interval.builder()));
+        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.cutover, 0, 200, 100, Interval.builder()));
+        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.cutover, 1, 300, 100, Interval.builder()));
+        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.cutover, 0, 400, 100, Interval.builder()));
+        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.cutover, 1, 500, 100, Interval.builder()));
+        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.cutover, 0, 600, 100, Interval.builder()));
         this.drawImageFor(imgsSpinData);
-        // this.ctx.drawImage(imgsSpinData[0].imgsData[0].imgContent, imgsSpinData[0].sx, imgsSpinData[0].sy, imgsSpinData[0].swidth, imgsSpinData[0].sheight, imgsSpinData[0].x, imgsSpinData[0].y, imgsSpinData[0].width, imgsSpinData[0].height);
     };
     // 负责画图
     this.drawImageFor = function (imgsData) {
@@ -103,7 +128,7 @@ let spinnerImg = function (imgData, canvas) {
         }, 100)
     }
     // 获取到drawImg 所需的所有数据
-    this.getDrawimageParameters = function (imgDataOne, imgDataTwo, current_idx, drection, sy, sheight) {
+    this.getDrawimageParameters = function (imgDataOne, imgDataTwo, current_idx, drection, sy, sheight, height_interval) {
         let imgsData = this.forImgIndex(imgDataOne, imgDataTwo, current_idx, drection)
         return {
             imgsData: imgsData,
@@ -112,9 +137,9 @@ let spinnerImg = function (imgData, canvas) {
             swidth: this.imgWidth,
             sheight: Math.floor(sheight / this.ratio.value),
             x: -(this.ratio.value * this.imgWidth - this.canvasInfo.width) / 2,
-            y: Math.floor(sy / this.ratio.value),
+            y: height_interval.y,
             width: this.ratio.value * this.imgWidth,
-            height: Math.floor(sheight / this.ratio.value)
+            height: height_interval.height
         };
     };
     // 获取图片组索引,到一半时切换下一套图
@@ -158,4 +183,6 @@ let spinnerImg = function (imgData, canvas) {
     }
 
 }
+
+
 module.exports = spinnerImg;
