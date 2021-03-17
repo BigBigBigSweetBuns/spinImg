@@ -14,8 +14,11 @@ var IntervalY = function (height, sum, y) {
         console.log("obj", obj);
         return obj;
     }
-    // 可能创建一个 入参(sum,height,i,y)函数替换当前对象
 }
+// 书写出入参(item,sum,num,append)函数
+// item:每个元素 sum:元素全部相加总和，num:元素总数，append:附加提前量
+// 参照上面对象，创建函数，返回数组
+
 
 let spinnerImg = function (imgData, canvas) {
     this.imgData = imgData; //[array,array]
@@ -90,28 +93,44 @@ let spinnerImg = function (imgData, canvas) {
     this.clickSpin = function () {
         console.log("clickSpin");
         console.log(this.cutover);
-        let imgsSpinData = new Array();
+        let imgsSpinData = [[], []];
         let canvasInterval = new IntervalY(this.canvasInfo.height, 7, 0);
         let imgInterval = new IntervalY(this.imgHeight, 7, 0);
-        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.imgsIndex, 0, imgInterval.builder(), canvasInterval.builder()));
-        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.imgsIndex, 1, imgInterval.builder(), canvasInterval.builder()));
-        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.imgsIndex, 0, imgInterval.builder(), canvasInterval.builder()));
-        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.imgsIndex, 1, imgInterval.builder(), canvasInterval.builder()));
-        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.imgsIndex, 0, imgInterval.builder(), canvasInterval.builder()));
-        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.imgsIndex, 1, imgInterval.builder(), canvasInterval.builder()));
-        imgsSpinData.push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.imgsIndex, 0, imgInterval.builder(), canvasInterval.builder()));
-        this.drawImageFor(imgsSpinData);
+        imgsSpinData[0].push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.imgsIndex, 0, imgInterval.builder(), canvasInterval.builder()));
+        imgsSpinData[1].push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.imgsIndex, 1, imgInterval.builder(), canvasInterval.builder()));
+        imgsSpinData[0].push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.imgsIndex, 0, imgInterval.builder(), canvasInterval.builder()));
+        imgsSpinData[1].push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.imgsIndex, 1, imgInterval.builder(), canvasInterval.builder()));
+        imgsSpinData[0].push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.imgsIndex, 0, imgInterval.builder(), canvasInterval.builder()));
+        imgsSpinData[1].push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.imgsIndex, 1, imgInterval.builder(), canvasInterval.builder()));
+        imgsSpinData[0].push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.imgsIndex, 0, imgInterval.builder(), canvasInterval.builder()));
+        console.log("imgsSpinData", imgsSpinData);
+        this.drawImageForOne(imgsSpinData[0], 2000);
+        this.drawImageForTwo(imgsSpinData[1], 2000);
     };
     // 负责画图
-    this.drawImageFor = function (imgsData) {
+    this.drawImageForOne = function (imgsData, time = 2000) {
         let index = 0;
+        let length = imgsData[0].imgsData.length;
+        let speed = Math.floor(time / length);
         let intarval = setInterval(() => {
-            if (index == imgsData[0].imgsData.length - 1) clearInterval(intarval);
+            if (index == length - 1) clearInterval(intarval);
             for (let i = 0; i < imgsData.length; i++) {
                 this.ctx.drawImage(imgsData[i].imgsData[index].imgContent, imgsData[i].sx, imgsData[i].sy, imgsData[i].swidth, imgsData[i].sheight, imgsData[i].x, imgsData[i].y, imgsData[i].width, imgsData[i].height);
             }
             index++;
-        }, 50)
+        }, speed)
+    }
+    this.drawImageForTwo = function (imgsData, time = 2000) {
+        let index = 0;
+        let length = imgsData[0].imgsData.length;
+        let speed = Math.floor(time / length);
+        let intarval = setInterval(() => {
+            if (index == length - 1) clearInterval(intarval);
+            for (let i = 0; i < imgsData.length; i++) {
+                this.ctx.drawImage(imgsData[i].imgsData[index].imgContent, imgsData[i].sx, imgsData[i].sy, imgsData[i].swidth, imgsData[i].sheight, imgsData[i].x, imgsData[i].y, imgsData[i].width, imgsData[i].height);
+            }
+            index++;
+        }, speed)
     }
     // 获取到drawImg 所需的所有数据
     this.getDrawimageParameters = function (imgDataOne, imgDataTwo, current_idx, drection, img_interval, height_interval) {
