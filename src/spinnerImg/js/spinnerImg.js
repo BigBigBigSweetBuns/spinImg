@@ -1,5 +1,5 @@
 const spin = require("./spin.js");
-var IntervalY = function (height, sum, y) {
+var IntervalY = function (height, sum, y = 0) {
     this.height = height;
     this.sum = sum;
     this.y = y;
@@ -94,21 +94,30 @@ let spinnerImg = function (imgData, canvas) {
         console.log("clickSpin");
         console.log(this.cutover);
         console.log(this.ratio);
-        let imgsSpinData = [[], []];
-        let canvasInterval = this.ratio.name == "ratioHeight" ? new IntervalY(this.canvasInfo.height, 7, 0) : new IntervalY(this.imgHeight * this.ratio.value, 7, 0);
-        let imgInterval = new IntervalY(this.imgHeight, 7, 0);
-        imgsSpinData[0].push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.imgsIndex, 0, imgInterval.builder(), canvasInterval.builder()));
-        imgsSpinData[1].push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.imgsIndex, 1, imgInterval.builder(), canvasInterval.builder()));
-        imgsSpinData[0].push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.imgsIndex, 0, imgInterval.builder(), canvasInterval.builder()));
-        imgsSpinData[1].push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.imgsIndex, 1, imgInterval.builder(), canvasInterval.builder()));
-        imgsSpinData[0].push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.imgsIndex, 0, imgInterval.builder(), canvasInterval.builder()));
-        imgsSpinData[1].push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.imgsIndex, 1, imgInterval.builder(), canvasInterval.builder()));
-        imgsSpinData[0].push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.imgsIndex, 0, imgInterval.builder(), canvasInterval.builder()));
-        console.log("imgsSpinData", imgsSpinData);
-        this.drawImageFor(imgsSpinData[0], 2000);
-        this.drawImageFor(imgsSpinData[1], 2000);
+
+        this.spinDefault(this.imgData, this.imgHeight, this.imgsIndex, this.canvasInfo.height, this.ratio, this.cutover);
         this.imgsIndex = 0;
+        this.cutover = this.cutover == 1 ? 0 : 1;
+
     };
+    this.spinDefault = function (imgs_data, img_height, imgs_index, canvasInfo_height, ratio, cutover) {  // 默认 spin 样式
+        let imgsSpinData = [[], []];
+        let rowTotal = 5;
+        let canvasInterval = ratio.name == "ratioHeight" ? new IntervalY(canvasInfo_height, rowTotal ) : new IntervalY(img_height * ratio.value, rowTotal); // 对ratio判断，如果缩放的是宽度，装载在画布中的图片高度为画布高度，否则为，缩放后的图片高度。
+        let imgInterval = new IntervalY(this.imgHeight, 5, 0);
+        let one = cutover;
+        let two = cutover == 1 ? 0 : 1;
+        console.log(1);
+        for (let i = 0; i < rowTotal; i++) {
+            if (i % 2 == 0)
+                imgsSpinData[1].push(this.getDrawimageParameters(imgs_data[one], this.imgData[two], imgs_index, 1, imgInterval.builder(), canvasInterval.builder()));
+            else
+                imgsSpinData[0].push(this.getDrawimageParameters(imgs_data[one], this.imgData[two], imgs_index, 0, imgInterval.builder(), canvasInterval.builder()));
+        }
+        for (let i = 0; i < imgsSpinData.length; i++) {
+            this.drawImageFor(imgsSpinData[i], 2000);
+        }
+    }
     // 负责画图
     this.drawImageFor = function (imgsData, time = 2000) {
         let index = 0;
@@ -194,6 +203,7 @@ let spinnerImg = function (imgData, canvas) {
                 if (loop && output == 0) break;
             }
         }
+        arr.push({ index: 0, imgContent: imgDataTwo[0] }); // 最后一张图切到第一张。该功能单独提出来的原因，后期可能将其拉出该功能外，进行调用。
         return arr;
     }
 
