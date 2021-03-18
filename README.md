@@ -4,17 +4,25 @@
 
 两组图片，相似但不同的图片。
 
+#### 代码细分 0318
+
+* [ ] 区间块，等比行旋转，代码优化 ( spin_interval_block )
+* [ ] 分割 spin 对象
+* [ ] 实现 慢-快-慢 速度曲线
+* [ ] interval 函数优化
+
 ### 实现目标
 
-* [ ] 鼠标点击后移动，图片切换
-* [ ] 点击切换按钮，图片组切换到另一组图
+* [x] 鼠标点击后移动，图片切换
+* [x] 点击切换按钮，图片组切换到另一组图
+* [ ] 不同组图，不同的切换效果
 
 #### animation
 
 ##### 鼠标移动
 
-* [ ] 拖拽鼠标，以移动速度，作为图片切换速度。
-* [ ] 当鼠标停止移动时，仍然有惯性，降速旋转图片到速度为零。
+* [x] 拖拽鼠标，以移动速度，作为图片切换速度。
+* [x] 当鼠标停止移动时，仍然有惯性，降速旋转图片到速度为零。
 
 ##### 切换组图
 
@@ -146,6 +154,8 @@ function (item,sum,num){ //item:每个元素 sum:元素全部相加总和，num:
 } 
 ```
 
+#### 获取 慢-快-慢 速度曲线分段值
+
 ### canvas drawImages() 的理解
 
 ##### 注意点：
@@ -179,4 +189,80 @@ context.drawImage(img,x,y,width,height);  // 定位图像，图像宽高（可�
 | *y*       | 在画布上放置图像的 y 坐标。              |
 | *width*   | 图像展示的宽度（变形图像）。             |
 | *height*  | 图像展示的高度（变形图像）。             |
+
+### 代码优化
+
+#### 绘制一行图片组旋转
+
+```javascript
+spinIdxAdd: function (current_idx, max, speed, callback) { // 索引变大
+        current_idx++;
+        let loop = current_idx > max / 2 ? true : false;
+        let output = current_idx % max;
+        let intarval = setInterval(() => {
+            if (!loop && output == 0) {
+                clearInterval(intarval);
+                return;
+            }
+            if (output == 0)
+                loop = false;
+            current_idx++;
+            callback(current_idx % max);
+            output = current_idx % max;
+
+        }, speed);
+    },
+```
+
+```javascript
+imgSpinAdd: function (imgsArr1, imgsArr2, current_index, time, callback) { // 图片旋转的到一半切换到第二份图 
+	let length = Math.min(imgsArr1.length, imgsArr2.length);
+	let loop = current_index > length / 2 ? true : false;
+	let num = loop ? length + (length - current_index + 1) : length - current_index; // 切换的图片数量
+	let speed = Math.floor(time / num);
+	this.spinIdxAdd(current_index, length - 1, speed, (index) => {
+		if (index == 0) {
+			loop = false;
+		}
+		if (loop || index <= length / 2) { // 前半圈显示第一套图 
+			callback(imgsArr1[index]);
+        } else if (!loop && index > length / 2) { // 旋转到一半后，切换第二套图
+			callback(imgsArr2[index]);
+        }
+    })
+},
+```
+
+```javascript
+this.isRatio = function () {
+        let ratioWidth = this.canvasInfo.width / this.imgWidth;
+        let ratioHeight = this.canvasInfo.height / this.imgHeight;
+        console.log("isRatio");
+        if (ratioWidth * this.imgWidth == this.canvasInfo.width && ratioWidth * this.imgHeight > this.canvasInfo.height) {
+            return { name: "ratioWidth", value: ratioWidth };
+        } else if (ratioHeight * this.imgHeight == this.canvasInfo.height && ratioHeight * this.imgWidth > this.canvasInfo.width) {
+            return { name: "ratioHeight", value: ratioHeight };
+        } else {
+            console.error("isRatio 判断出错,没有找到合适的Ratio");
+        }
+    };
+```
+
+```javascript
+    this.drawImageLine = function (imgContent, ratio, sy, y, height) {
+        if (ratio.name = "ratioHeight") {
+            this.ctx.drawImage(imgContent, 0, y / ratio.value, this.imgWidth, height / ratio.value, -(ratio.value * this.imgWidth - this.canvasInfo.width) / 2, y, ratio.value * this.imgWidth, height);
+        } else if (ratio.name = "ratioWidth") {
+            this.ctx.drawImage(imgContent, 0, sy, this.imgWidth, height / rtaio.value, - (ratio.value * this.imgWidth - this.canvasInfo.width) / 2, y, ratio.value * this.imgWidth, height)
+        }
+    };
+```
+
+调用
+
+```javascript
+spin.imgSpinAdd(imgDataOne, imgDataTwo, this.imgsIndex, time, (imgContent) => {
+	this.drawImageLine(imgContent, this.ratio, sy, y, showHeight);
+});
+```
 
