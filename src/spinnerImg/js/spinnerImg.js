@@ -102,9 +102,9 @@ let spinnerImg = function (imgData, canvas) {
     };
     this.spinDefault = function (imgs_data, img_height, imgs_index, canvasInfo_height, ratio, cutover) {  // 默认 spin 样式
         let imgsSpinData = [[], []];
-        let rowTotal = 5;
-        let canvasInterval = ratio.name == "ratioHeight" ? new IntervalY(canvasInfo_height, rowTotal ) : new IntervalY(img_height * ratio.value, rowTotal); // 对ratio判断，如果缩放的是宽度，装载在画布中的图片高度为画布高度，否则为，缩放后的图片高度。
-        let imgInterval = new IntervalY(this.imgHeight, 5, 0);
+        let rowTotal = 3;
+        let canvasInterval = ratio.name == "ratioHeight" ? new IntervalY(canvasInfo_height, rowTotal) : new IntervalY(img_height * ratio.value, rowTotal); // 对ratio判断，如果缩放的是宽度，装载在画布中的图片高度为画布高度，否则为，缩放后的图片高度。
+        let imgInterval = new IntervalY(this.imgHeight, rowTotal, 0);
         let one = cutover;
         let two = cutover == 1 ? 0 : 1;
         console.log(1);
