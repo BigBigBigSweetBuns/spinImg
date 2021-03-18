@@ -41,9 +41,9 @@ let spinnerImg = function (imgData, canvas) {
         this.drawImage(this.imgData[this.cutover], this.imgsIndex, this.ratio)
     };
     this.drawImage = function (imgData, imgsIndex, ratio) {
-        if (ratio.name = "ratioHeight") {
+        if (ratio.name == "ratioHeight") {
             this.ctx.drawImage(imgData[imgsIndex], 0, 0, this.imgWidth, this.imgHeight, - (ratio.value * this.imgWidth - this.canvasInfo.width) / 2, - (ratio.value * this.imgHeight - this.canvasInfo.height) / 2, ratio.value * this.imgWidth, ratio.value * this.imgHeight)
-        } else if (ratio.name = "ratioWidth") {
+        } else if (ratio.name == "ratioWidth") {
             this.ctx.drawImage(imgData[imgsIndex], 0, 0, this.imgWidth, this.imgHeight, - (ratio.value * this.imgWidth - this.canvasInfo.width) / 2, - (ratio.value * this.imgHeight - this.canvasInfo.height) / 2, ratio.value * this.imgWidth, ratio.value * this.imgHeight)
         } else {
             console.error("无法绘制图片，获取不到ratio data");
@@ -55,11 +55,11 @@ let spinnerImg = function (imgData, canvas) {
     // 同时根据
     // 0:--
     // 1:++
-    this.changeImgIndex = function (status) {
+    this.changeImgIndex = function (drection) {
         let length = this.imgData[this.cutover].length;
-        if (status == 0)
+        if (drection == 0)
             this.imgsIndex = this.imgsIndex == 0 ? length - 1 : this.imgsIndex - 1;
-        else if (status == 1)
+        else if (drection == 1)
             this.imgsIndex = this.imgsIndex + 1 == length ? 0 : this.imgsIndex + 1;
         else
             console.error("changeImgIndex输入的状态值不是 0 | 1");
@@ -93,8 +93,9 @@ let spinnerImg = function (imgData, canvas) {
     this.clickSpin = function () {
         console.log("clickSpin");
         console.log(this.cutover);
+        console.log(this.ratio);
         let imgsSpinData = [[], []];
-        let canvasInterval = this.ratio.name = "ratioHeight" ? new IntervalY(this.canvasInfo.height, 7, 0) : new IntervalY(this.imgHeight * this.ratio.value, 7, 0);
+        let canvasInterval = this.ratio.name == "ratioHeight" ? new IntervalY(this.canvasInfo.height, 7, 0) : new IntervalY(this.imgHeight * this.ratio.value, 7, 0);
         let imgInterval = new IntervalY(this.imgHeight, 7, 0);
         imgsSpinData[0].push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.imgsIndex, 0, imgInterval.builder(), canvasInterval.builder()));
         imgsSpinData[1].push(this.getDrawimageParameters(this.imgData[0], this.imgData[1], this.imgsIndex, 1, imgInterval.builder(), canvasInterval.builder()));
@@ -106,6 +107,7 @@ let spinnerImg = function (imgData, canvas) {
         console.log("imgsSpinData", imgsSpinData);
         this.drawImageFor(imgsSpinData[0], 2000);
         this.drawImageFor(imgsSpinData[1], 2000);
+        this.imgsIndex = 0;
     };
     // 负责画图
     this.drawImageFor = function (imgsData, time = 2000) {
@@ -123,10 +125,10 @@ let spinnerImg = function (imgData, canvas) {
     // 获取到drawImg 所需的所有数据
     this.getDrawimageParameters = function (imgDataOne, imgDataTwo, current_idx, drection, img_interval, canvas_interval) {
         let imgsData = this.forImgIndex(imgDataOne, imgDataTwo, current_idx, drection)
-        if (this.ratio.name = "ratioHeight") {
+        if (this.ratio.name == "ratioHeight") {
             return height(imgsData, this.imgWidth, this.canvasInfo.width, img_interval, canvas_interval, this.ratio);
         } else {
-            return width(imgsData, this.imgWidth, this.canvasInfo.width, img_interval, canvas_interval, this.ratio);
+            return width(imgsData, this.imgWidth, this.imgHeight, this.canvasInfo.height, img_interval, canvas_interval, this.ratio);
         }
         function height(imgsData, img_width, canvasInfo_width, img_interval, canvas_interval, ratio) { // 一组图片数据，图片宽度，画布宽度，图片组原图裁切后y轴和高度，图片组画布y轴和高度，当前宽高比值
             return {
@@ -141,7 +143,7 @@ let spinnerImg = function (imgData, canvas) {
                 height: canvas_interval.height
             };
         };
-        function width(imgsData, img_width, canvasInfo_height, img_interval, canvas_interval, ratio) { // 一组图片数据，图片宽度，画布高度，图片组原图裁切后y轴和高度，图片组画布y轴和高度，当前宽高比值
+        function width(imgsData, img_width, img_height, canvasInfo_height, img_interval, canvas_interval, ratio) { // 一组图片数据，图片宽度，画布高度，图片组原图裁切后y轴和高度，图片组画布y轴和高度，当前宽高比值
             return {
                 imgsData: imgsData,
                 sx: 0,
@@ -149,9 +151,9 @@ let spinnerImg = function (imgData, canvas) {
                 swidth: img_width,
                 sheight: img_interval.height,
                 x: 0,
-                y: canvas_interval.y - (ratio.value * imgheight - canvasInfo_height) / 2, // 因为高度高于画布高度，需要减去多余的高度，使画面居中
-                width: this.ratio.value * this.imgWidth,
-                height: canvasInfo_height.height
+                y: canvas_interval.y - (ratio.value * img_height - canvasInfo_height) / 2, // 因为高度高于画布高度，需要减去多余的高度，使画面居中
+                width: ratio.value * img_width,
+                height: canvas_interval.height
             }
         }
     };
