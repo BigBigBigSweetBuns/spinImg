@@ -192,6 +192,8 @@ context.drawImage(img,x,y,width,height);  // 定位图像，图像宽高（可�
 
 ### 代码优化
 
+#### 图片惯性移动曲线优化
+
 #### 绘制一行图片组旋转
 
 ```javascript
@@ -266,3 +268,6 @@ spin.imgSpinAdd(imgDataOne, imgDataTwo, this.imgsIndex, time, (imgContent) => {
 });
 ```
 
+### todo
+
+绝大部分函数 使用的都是以原图片数据作为标准，而不是当前画布的状态 ( 宽高 ) 

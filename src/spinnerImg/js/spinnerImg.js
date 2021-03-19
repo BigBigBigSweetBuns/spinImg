@@ -78,11 +78,11 @@ let spinnerImg = function (imgData, canvas) {
             console.error("isRatio 判断出错,没有找到合适的Ratio");
         }
     };
-    this.spinLineBlock = function (imgs_data, imgs_index, show_height, y, cutover, drection) {  // drection 获取列表的旋转方向
+    this.spinLineBlock = function (imgs_data, imgs_index, show_height, y, cutover, drection) {  // show_height 原始图片展示高度， y 原始图片的坐标，drection 获取列表的旋转方向
         let length = drection.length;
         let imgsSpinData = [[], []]; // 分成两组是为了区分左右旋转时的计时器
-        let canvasInterval = new IntervalY(show_height * this.ratio.value, length, Math.floor(y * this.ratio.value));
-        let imgInterval = new IntervalY((this.imgHeight - y) * this.ratio.value, length, Math.floor(y * this.ratio.value));
+        let canvasInterval = new IntervalY(Math.ceil(show_height * this.ratio.value), length, Math.ceil(y * this.ratio.value));
+        let imgInterval = new IntervalY(Math.ceil(show_height), length, y);
         let one = cutover;
         let two = cutover == 1 ? 0 : 1;
         for (let i = 0; i < length; i++) {
@@ -94,15 +94,47 @@ let spinnerImg = function (imgData, canvas) {
             }
         }
         return imgsSpinData;
+    };
+    // 通过识别drection数组，生成整个旋转图片数据
+    this.spinLineBlock_recursion = function (imgs_data, imgs_index, show_height, y, cutover, drectionArr) {  // show_height 原始图片展示高度， y 原始图片的坐标，drection 获取列表的旋转方向
+        let length = drectionArr.length;
+        let imgsSpinData = [[], []]; // 分成两组是为了区分左右旋转时的计时器
+        let canvasInterval = new IntervalY(Math.ceil(show_height * this.ratio.value), length, Math.round(y * this.ratio.value));
+        let imgInterval = new IntervalY(Math.ceil(show_height), length, y);
+        let one = cutover;
+        let two = cutover == 1 ? 0 : 1;
+        for (let i = 0; i < length; i++) {
+            let canvasInter = canvasInterval.builder();
+            let imgInter = imgInterval.builder();
+            if (Array.isArray(drectionArr[i])) { // 识别到当前有子数组
+                let data = this.spinLineBlock_recursion(imgs_data, imgs_index, canvasInter.height, imgInter.y, cutover, drectionArr[i]);
+                imgsSpinData[0].push(...data[0])
+                imgsSpinData[1].push(...data[1])
+            } else {
+                let data = this.getDrawimageParameters(imgs_data[one], imgs_data[two], imgs_index, drectionArr[i], imgInter, canvasInter);
+                if (drectionArr[i] == 1) {
+                    imgsSpinData[0].push(data);
+                } else {
+                    imgsSpinData[1].push(data);
+                }
+            }
 
+        }
+        return imgsSpinData;
     };
     this.clickSpin = function () {
         console.log("clickSpin");
         console.log(this.cutover);
         console.log(this.ratio);
+        let arr = [1, [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0], 0];
         let drectionArr = [1, 0, 1, 0, 1, 0, 1, 1, 1];
-        let a = this.spinLineBlock(this.imgData, this.imgsIndex, 1000, 100, this.cutover, drectionArr);
-        console.log("a", a);
+        // let a = this.spinLineBlock(this.imgData, this.imgsIndex, 500, 100, this.cutover, drectionArr);
+        let a = this.spinLineBlock_recursion(this.imgData, this.imgsIndex, 1060, 0, this.cutover, arr);
+        console.log(a);
+        // let imgsData = [[], []];
+        // imgsData = this.spinLineBlock(this.imgData, this.imgsIndex, 1000, 100, this.cutover, [0, 1, 0])
+        // let a = this.spinLineBlock(this.imgData, this.imgsIndex, 1000, 100, this.cutover, drectionArr);
+        // console.log("a", a);
         for (let i = 0; i < a.length; i++) {
             this.drawImageFor(a[i], 2000)
         }
@@ -114,7 +146,7 @@ let spinnerImg = function (imgData, canvas) {
     this.spinDefault = function (imgs_data, imgs_index, img_height, canvasInfo_height, ratio, cutover) {  // 默认 spin 样式
         let imgsSpinData = [[], []];
         let rowTotal = 3;
-        let canvasInterval = ratio.name == "ratioHeight" ? new IntervalY(canvasInfo_height, rowTotal) : new IntervalY(img_height * ratio.value, rowTotal); // 对ratio判断，如果缩放的是宽度，装载在画布中的图片高度为画布高度，否则为，缩放后的图片高度。
+        let canvasInterval = new IntervalY(img_height * ratio.value, rowTotal); // 对ratio判断，如果缩放的是宽度，装载在画布中的图片高度为画布高度，否则为，缩放后的图片高度。
         let imgInterval = new IntervalY(this.imgHeight, rowTotal, 0);
         let one = cutover;
         let two = cutover == 1 ? 0 : 1;
