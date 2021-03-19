@@ -1,4 +1,3 @@
-const spin = require("./spin.js");
 var IntervalY = function (height, sum, y = 0) {
     this.height = height;
     this.sum = sum;
@@ -28,9 +27,22 @@ let spinnerImg = function (imgData, canvas) {
     this.ctx = this.canvasInfo.getContext("2d"); // 画布环境
     this.cutover = 0;//默认使用第一份图  0:第一份 1:第二份 
     this.imgsIndex = 0; // 当前图片选择到到第几索引
-    this.ratio = { name: "null", value: "" }; // 使用那种比值能铺满整个屏幕
+    this.ratio = { name: null, value: "" }; // 使用那种比值能铺满整个屏幕
     this.init = function () {
         this.ratio = this.isRatio();
+    };
+    // 点击时绑定的事件
+    this.clickSpin = function () {
+        console.log("clickSpin");
+        console.log(this.cutover);
+        console.log(this.ratio);
+        let drectionArr = [1, [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0], 0];
+        let data = this.spinLineBlock_recursion(this.imgData, this.imgsIndex, 1060, 0, this.cutover, drectionArr);
+        this.DIYSpin(data)
+
+        // this.spinDefault(this.imgData, this.imgsIndex, this.imgHeight, this.ratio, this.cutover);
+        this.imgsIndex = 0;
+        this.cutover = this.cutover == 1 ? 0 : 1;
     };
     // 根据方向，绘画图片
     // 0:顺时针旋转
@@ -49,8 +61,6 @@ let spinnerImg = function (imgData, canvas) {
             console.error("无法绘制图片，获取不到ratio data");
         }
     };
-
-
     // 索引是 ++ 还是 --
     // 同时根据
     // 0:--
@@ -122,28 +132,14 @@ let spinnerImg = function (imgData, canvas) {
         }
         return imgsSpinData;
     };
-    this.clickSpin = function () {
-        console.log("clickSpin");
-        console.log(this.cutover);
-        console.log(this.ratio);
-        let arr = [1, [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0], 0];
-        let drectionArr = [1, 0, 1, 0, 1, 0, 1, 1, 1];
-        // let a = this.spinLineBlock(this.imgData, this.imgsIndex, 500, 100, this.cutover, drectionArr);
-        let a = this.spinLineBlock_recursion(this.imgData, this.imgsIndex, 1060, 0, this.cutover, arr);
-        console.log(a);
-        // let imgsData = [[], []];
-        // imgsData = this.spinLineBlock(this.imgData, this.imgsIndex, 1000, 100, this.cutover, [0, 1, 0])
-        // let a = this.spinLineBlock(this.imgData, this.imgsIndex, 1000, 100, this.cutover, drectionArr);
-        // console.log("a", a);
-        for (let i = 0; i < a.length; i++) {
-            this.drawImageFor(a[i], 2000)
+    // 自定义样式后，启动绘图
+    this.diySpin = function (data) {
+        for (let i = 0; i < data.length; i++) {
+            this.drawImageFor(data[i], 2000)
         }
-        // this.spinDefault(this.imgData, this.imgsIndex, this.imgHeight, this.canvasInfo.height, this.ratio, this.cutover);
-        this.imgsIndex = 0;
-        this.cutover = this.cutover == 1 ? 0 : 1;
-
     };
-    this.spinDefault = function (imgs_data, imgs_index, img_height, canvasInfo_height, ratio, cutover) {  // 默认 spin 样式
+    // 点击后，旋转的默认样式
+    this.spinDefault = function (imgs_data, imgs_index, img_height, ratio, cutover) {  // 默认 spin 样式
         let imgsSpinData = [[], []];
         let rowTotal = 3;
         let canvasInterval = new IntervalY(img_height * ratio.value, rowTotal); // 对ratio判断，如果缩放的是宽度，装载在画布中的图片高度为画布高度，否则为，缩放后的图片高度。
