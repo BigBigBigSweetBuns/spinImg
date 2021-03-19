@@ -78,29 +78,40 @@ let spinnerImg = function (imgData, canvas) {
             console.error("isRatio 判断出错,没有找到合适的Ratio");
         }
     };
-    this.spinLine = function (imgDataOne, imgDataTwo, sy, y, showHeight, time, drection) {
-        if (drection == 0) {
-            spin.imgSpinAdd(imgDataOne, imgDataTwo, this.imgsIndex, time, (imgContent) => {
-                this.drawImageLine(imgContent, this.ratio, sy, y, showHeight);
-            });
-        } else if (drection == 1) {
-            spin.imgSpinLess(imgDataOne, imgDataTwo, this.imgsIndex, time, (imgContent) => {
-                this.drawImageLine(imgContent, this.ratio, sy, y, showHeight);
-            });
+    this.spinLineBlock = function (imgs_data, imgs_index, show_height, y, cutover, drection) {  // drection 获取列表的旋转方向
+        let length = drection.length;
+        let imgsSpinData = [[], []]; // 分成两组是为了区分左右旋转时的计时器
+        let canvasInterval = new IntervalY(show_height * this.ratio.value, length, Math.floor(y * this.ratio.value));
+        let imgInterval = new IntervalY((this.imgHeight - y) * this.ratio.value, length, Math.floor(y * this.ratio.value));
+        let one = cutover;
+        let two = cutover == 1 ? 0 : 1;
+        for (let i = 0; i < length; i++) {
+            let data = this.getDrawimageParameters(imgs_data[one], imgs_data[two], imgs_index, drection[i], imgInterval.builder(), canvasInterval.builder());
+            if (drection[i] == 1) {
+                imgsSpinData[0].push(data);
+            } else {
+                imgsSpinData[1].push(data);
+            }
         }
-        this.imgsIndex = 0;
+        return imgsSpinData;
+
     };
     this.clickSpin = function () {
         console.log("clickSpin");
         console.log(this.cutover);
         console.log(this.ratio);
-
-        this.spinDefault(this.imgData, this.imgHeight, this.imgsIndex, this.canvasInfo.height, this.ratio, this.cutover);
+        let drectionArr = [1, 0, 1, 0, 1, 0, 1, 1, 1];
+        let a = this.spinLineBlock(this.imgData, this.imgsIndex, 1000, 100, this.cutover, drectionArr);
+        console.log("a", a);
+        for (let i = 0; i < a.length; i++) {
+            this.drawImageFor(a[i], 2000)
+        }
+        // this.spinDefault(this.imgData, this.imgsIndex, this.imgHeight, this.canvasInfo.height, this.ratio, this.cutover);
         this.imgsIndex = 0;
         this.cutover = this.cutover == 1 ? 0 : 1;
 
     };
-    this.spinDefault = function (imgs_data, img_height, imgs_index, canvasInfo_height, ratio, cutover) {  // 默认 spin 样式
+    this.spinDefault = function (imgs_data, imgs_index, img_height, canvasInfo_height, ratio, cutover) {  // 默认 spin 样式
         let imgsSpinData = [[], []];
         let rowTotal = 3;
         let canvasInterval = ratio.name == "ratioHeight" ? new IntervalY(canvasInfo_height, rowTotal) : new IntervalY(img_height * ratio.value, rowTotal); // 对ratio判断，如果缩放的是宽度，装载在画布中的图片高度为画布高度，否则为，缩放后的图片高度。
