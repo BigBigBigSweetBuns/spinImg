@@ -133,7 +133,7 @@ let spinnerImg = function (imgData, canvas) {
         return imgsSpinData;
     };
     // 自定义样式后，启动绘图
-    this.diySpin = function (data) {
+    this.DIYSpin = function (data) {
         for (let i = 0; i < data.length; i++) {
             this.drawImageFor(data[i], 2000)
         }
