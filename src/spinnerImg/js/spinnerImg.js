@@ -1,3 +1,4 @@
+const getTimePerFlrame = require("./acceleration.js");
 var IntervalY = function (height, sum, y = 0) {
     this.height = height;
     this.sum = sum;
@@ -10,7 +11,7 @@ var IntervalY = function (height, sum, y = 0) {
         let obj = { y: this.lastY + y, height: line };
         this.lastY = this.lastY + line;
         this.i += 1;
-        console.log("obj", obj);
+        // console.log("obj", obj);
         return obj;
     }
 }
@@ -36,11 +37,11 @@ let spinnerImg = function (imgData, canvas) {
         console.log("clickSpin");
         console.log(this.cutover);
         console.log(this.ratio);
-        let drectionArr = [1, [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0], 0];
-        let data = this.spinLineBlock_recursion(this.imgData, this.imgsIndex, 1060, 0, this.cutover, drectionArr);
-        this.DIYSpin(data)
+        // let drectionArr = [1, [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0], 0];
+        // let data = this.spinLineBlock_recursion(this.imgData, this.imgsIndex, 1060, 0, this.cutover, drectionArr);
+        // this.DIYSpin(data)
 
-        // this.spinDefault(this.imgData, this.imgsIndex, this.imgHeight, this.ratio, this.cutover);
+        this.spinDefault(this.imgData, this.imgsIndex, this.imgHeight, this.ratio, this.cutover);
         this.imgsIndex = 0;
         this.cutover = this.cutover == 1 ? 0 : 1;
     };
@@ -146,7 +147,6 @@ let spinnerImg = function (imgData, canvas) {
         let imgInterval = new IntervalY(this.imgHeight, rowTotal, 0);
         let one = cutover;
         let two = cutover == 1 ? 0 : 1;
-        console.log(1);
         for (let i = 0; i < rowTotal; i++) {
             if (i % 2 == 0)
                 imgsSpinData[1].push(this.getDrawimageParameters(imgs_data[one], this.imgData[two], imgs_index, 1, imgInterval.builder(), canvasInterval.builder()));
@@ -159,16 +159,23 @@ let spinnerImg = function (imgData, canvas) {
     }
     // 负责画图
     this.drawImageFor = function (imgsData, time = 2000) {
-        let index = 0;
+        let ctx = this.ctx;
         let length = imgsData[0].imgsData.length;
-        let speed = Math.floor(time / length);
-        let intarval = setInterval(() => {
-            if (index == length - 1) clearInterval(intarval);
-            for (let i = 0; i < imgsData.length; i++) {
-                this.ctx.drawImage(imgsData[i].imgsData[index].imgContent, imgsData[i].sx, imgsData[i].sy, imgsData[i].swidth, imgsData[i].sheight, imgsData[i].x, imgsData[i].y, imgsData[i].width, imgsData[i].height);
+        let TPF = getTimePerFlrame(length, time);
+        let timer;
+        // console.log("TPF", TPF);
+        // console.log("getsum", TPF.reduce((a, b) => { return a + b }))
+        let sleep = function (index = 0) {
+            if (index == length) {
+                clearTimeout(timer);
+                return;
             }
-            index++;
-        }, speed)
+            for (let i = 0; i < imgsData.length; i++) {
+                ctx.drawImage(imgsData[i].imgsData[index].imgContent, imgsData[i].sx, imgsData[i].sy, imgsData[i].swidth, imgsData[i].sheight, imgsData[i].x, imgsData[i].y, imgsData[i].width, imgsData[i].height);
+            }
+            timer = setTimeout(function () { sleep(index + 1) }, TPF[index + 1]);
+        }
+        sleep();
     }
     // 获取到drawImg 所需的所有数据
     this.getDrawimageParameters = function (imgDataOne, imgDataTwo, current_idx, drection, img_interval, canvas_interval) {
