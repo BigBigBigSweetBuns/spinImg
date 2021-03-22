@@ -4,3 +4,4 @@ node_modules/
 dist/
 drwapic/
 src/static/images/
+test.bat
