@@ -1,4 +1,16 @@
 // 获得一个数组，数组包含这每帧（图片）到下一帧的时间差
+let TPFlowerarr = function (last_speed, total_frames, total_time) {
+    let arr = [];
+    let acceleration = total_frames / total_time / total_time * 1000 * 1000; // 匀速加速度  
+
+    console.log("arr", acceleration)
+    while (last_speed < 500) {
+        last_speed += acceleration;
+        arr.push(last_speed);
+    }
+    console.log("arr", arr)
+    return arr;
+}
 let TPF = function (total_frames, total_time) { //生成一个正加速度数组
     total_time = total_time / 2
     let arr = [];
@@ -25,3 +37,4 @@ let output = function (total_frames, total_time) {
     return arr;
 }
 module.exports = output;
+module.exports.TPFlowerarr = TPFlowerarr;

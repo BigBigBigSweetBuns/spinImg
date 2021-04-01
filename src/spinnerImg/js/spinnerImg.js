@@ -45,6 +45,15 @@ let spinnerImg = function (imgData, canvas) {
         this.imgsIndex = 0;
         this.cutover = this.cutover == 1 ? 0 : 1;
     };
+    this.transferSpeed = function (move_speed, drection) { //鼠标松开时的滑动事件
+        let canvasInterval = new IntervalY(Math.ceil(this.canvasInfo.height * this.ratio.value), length);
+        let imgInterval = new IntervalY(Math.ceil(this.canvasInfo.height), length);
+        let TPF = getTimePerFlrame.TPFlowerarr(move_speed, imgData[this.cutover].length, 2000);
+        let data = this.getDrawimageParametersLower(imgData[this.cutover], this.imgsIndex, drection, TPF.length, imgInterval.builder(), canvasInterval.builder())
+        console.log("TPF", TPF);
+        console.log(data);
+            this.drawImageFor(data, TPF);
+    };
     // 根据方向，绘画图片
     // 0:顺时针旋转
     // 1:逆时针方向旋转
@@ -208,6 +217,56 @@ let spinnerImg = function (imgData, canvas) {
                 height: canvas_interval.height
             }
         }
+    };
+    this.getDrawimageParametersLower = function (imgsDataOne, current_idx, drection, length, img_interval, canvas_interval) {
+        let imgsData = forImg(imgsDataOne, current_idx, drection, length)//length ,需要的长度。
+        if (this.ratio.name == "ratioHeight") {
+            return height(imgsData, this.imgWidth, this.canvasInfo.width, img_interval, canvas_interval, this.ratio);
+        } else {
+            return width(imgsData, this.imgWidth, this.imgHeight, this.canvasInfo.height, img_interval, canvas_interval, this.ratio);
+        }
+        function height(imgsData, img_width, canvasInfo_width, img_interval, canvas_interval, ratio) { // 一组图片数据，图片宽度，画布宽度，图片组原图裁切后y轴和高度，图片组画布y轴和高度，当前宽高比值
+            return {
+                imgsData: imgsData,
+                sx: 0,
+                sy: img_interval.y,
+                swidth: img_width,
+                sheight: img_interval.height,
+                x: -(ratio.value * img_width - canvasInfo_width) / 2, // 因为宽度大于画布宽度，需要减去多余的宽度，使画面居中
+                y: canvas_interval.y,
+                width: ratio.value * img_width,
+                height: canvas_interval.height
+            };
+        };
+        function width(imgsData, img_width, img_height, canvasInfo_height, img_interval, canvas_interval, ratio) { // 一组图片数据，图片宽度，画布高度，图片组原图裁切后y轴和高度，图片组画布y轴和高度，当前宽高比值
+            return {
+                imgsData: imgsData,
+                sx: 0,
+                sy: img_interval.y,
+                swidth: img_width,
+                sheight: img_interval.height,
+                x: 0,
+                y: canvas_interval.y - (ratio.value * img_height - canvasInfo_height) / 2, // 因为高度高于画布高度，需要减去多余的高度，使画面居中
+                width: ratio.value * img_width,
+                height: canvas_interval.height
+            }
+        }
+        function forImg(imgData, current_idx, drection, length) {
+            let arr = new Array();
+            let output = current_idx;
+            if (drection == 0) {
+                for (let i = 0; i < length; i++) {
+                    output = output == imgData.length - 1 ? 0 : output + 1;
+                    arr.push({ index: output, imgContent: imgData[output] });
+                }
+            } else if (drection == 1) {
+                for (let i = 0; i < length; i++) {
+                    output = output == 0 ? imgData.length - 1 : output - 1;
+                    arr.push({ index: output, imgContent: imgData[output] });
+                }
+            }
+            return arr;
+        };
     };
     // 获取图片组索引,到一半时切换下一套图
     this.forImgIndex = function (imgDataOne, imgDataTwo, current_idx, drection) {

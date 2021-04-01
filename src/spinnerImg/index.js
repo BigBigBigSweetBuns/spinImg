@@ -1,5 +1,7 @@
 require("./index.scss");
 
+const a1 = require("./js/acceleration.js");
+
 const dataLoad = require("./js/dataLoad");
 const styleLoading = require("./js/styleLoading");
 // const spin = require("./js/spin");
@@ -115,20 +117,21 @@ window.onload = function () {
     // 每0.02秒有无松开鼠标，如果松开鼠标，记录该区间速度。将该速度衰平滑减至零
     let timeX = 0;
     let moveTime = null, slideTime = null;// 计数器
-    function getMoveSpeed(imgsUrl) { // 获取鼠标移动速度
+    let moveSpeed = 0;
+    function getMoveSpeed() { // 获取鼠标移动速度
         clearInterval(moveTime)
-        let moveSpeed = 0;
+        let time = 10;
         moveTime = setInterval(function () {
-            moveSpeed = Math.abs(moveMouse.clientX - timeX);
+            let total = Math.floor(Math.abs(moveMouse.clientX - timeX) / 15);// 总数
             timeX = moveMouse.clientX;
+            moveSpeed = Math.floor(total / time);
             if (moveMouse.onUp) {
                 clearInterval(moveTime)
-                transferspeed(moveSpeed, imgsUrls[0])
-                // TODO 
-                // 鼠标划出组件的时候，不会触发 onUp事件
+                spinnerImgData.transferSpeed(moveSpeed, moveMouse.drection);
+                return;
             }
-            speedBox.innerHTML = "speeds: " + moveSpeed;
-        }, 10)
+
+        }, time)
     }
 
     function sleep(time) {
