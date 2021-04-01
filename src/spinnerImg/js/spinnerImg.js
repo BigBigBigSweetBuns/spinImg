@@ -154,17 +154,14 @@ let spinnerImg = function (imgData, canvas) {
                 imgsSpinData[0].push(this.getDrawimageParameters(imgs_data[one], this.imgData[two], imgs_index, 0, imgInterval.builder(), canvasInterval.builder()));
         }
         for (let i = 0; i < imgsSpinData.length; i++) {
-            this.drawImageFor(imgsSpinData[i], 2000);
+            let TPF = getTimePerFlrame(length, 2000);
+            this.drawImageFor(imgsSpinData[i], TPF);
         }
     }
-    // 负责画图
-    this.drawImageFor = function (imgsData, time = 2000) {
+    this.drawImageFor = function (imgsData, TPF) { //入参 图片组，和每帧间隔时间组。
         let ctx = this.ctx;
         let length = imgsData[0].imgsData.length;
-        let TPF = getTimePerFlrame(length, time);
         let timer;
-        // console.log("TPF", TPF);
-        // console.log("getsum", TPF.reduce((a, b) => { return a + b }))
         let sleep = function (index = 0) {
             if (index == length) {
                 clearTimeout(timer);
