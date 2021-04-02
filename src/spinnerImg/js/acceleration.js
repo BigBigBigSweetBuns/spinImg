@@ -3,12 +3,10 @@ let TPFlowerarr = function (last_speed, total_frames, total_time) {
     let arr = [];
     let acceleration = total_frames / total_time / total_time * 1000 * 1000; // 匀速加速度  
 
-    console.log("arr", acceleration)
-    while (last_speed < 500) {
+    while (last_speed < 150) {
         last_speed += acceleration;
         arr.push(last_speed);
     }
-    console.log("arr", arr)
     return arr;
 }
 let TPF = function (total_frames, total_time) { //生成一个正加速度数组

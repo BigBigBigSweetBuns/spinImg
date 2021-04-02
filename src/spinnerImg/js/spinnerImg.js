@@ -52,7 +52,7 @@ let spinnerImg = function (imgData, canvas) {
         let data = this.getDrawimageParametersLower(imgData[this.cutover], this.imgsIndex, drection, TPF.length, imgInterval.builder(), canvasInterval.builder())
         console.log("TPF", TPF);
         console.log(data);
-            this.drawImageFor(data, TPF);
+        this.drawImageForlower(data, TPF);
     };
     // 根据方向，绘画图片
     // 0:顺时针旋转
@@ -67,6 +67,15 @@ let spinnerImg = function (imgData, canvas) {
             this.ctx.drawImage(imgData[imgsIndex], 0, 0, this.imgWidth, this.imgHeight, - (ratio.value * this.imgWidth - this.canvasInfo.width) / 2, - (ratio.value * this.imgHeight - this.canvasInfo.height) / 2, ratio.value * this.imgWidth, ratio.value * this.imgHeight)
         } else if (ratio.name == "ratioWidth") {
             this.ctx.drawImage(imgData[imgsIndex], 0, 0, this.imgWidth, this.imgHeight, - (ratio.value * this.imgWidth - this.canvasInfo.width) / 2, - (ratio.value * this.imgHeight - this.canvasInfo.height) / 2, ratio.value * this.imgWidth, ratio.value * this.imgHeight)
+        } else {
+            console.error("无法绘制图片，获取不到ratio data");
+        }
+    };
+    this.drawImagelower = function (imgData, imgsIndex, ratio, that) {
+        if (ratio.name == "ratioHeight") {
+            that.ctx.drawImage(imgData[imgsIndex].imgContent, 0, 0, that.imgWidth, that.imgHeight, - (ratio.value * that.imgWidth - that.canvasInfo.width) / 2, - (ratio.value * that.imgHeight - that.canvasInfo.height) / 2, ratio.value * that.imgWidth, ratio.value * that.imgHeight)
+        } else if (ratio.name == "ratioWidth") {
+            that.ctx.drawImage(imgData[imgsIndex].imgContent, 0, 0, that.imgWidth, that.imgHeight, - (ratio.value * that.imgWidth - that.canvasInfo.width) / 2, - (ratio.value * that.imgHeight - that.canvasInfo.height) / 2, ratio.value * that.imgWidth, ratio.value * that.imgHeight)
         } else {
             console.error("无法绘制图片，获取不到ratio data");
         }
@@ -183,6 +192,22 @@ let spinnerImg = function (imgData, canvas) {
         }
         sleep();
     }
+    this.drawImageForlower = function (imgsData, TPF) { //入参 图片组，和每帧间隔时间组。
+        let ctx = this.ctx;
+        let that = this;
+        let length = imgsData.imgsData.length;
+        let timer;
+        let sleep = function (index = 0) {
+            if (index == length) {
+                clearTimeout(timer);
+                return;
+            }
+            console.log("index", index, "TPF", TPF[index])
+            that.drawImagelower(imgsData.imgsData, index, that.ratio, that);
+            timer = setTimeout(function () { sleep(index + 1) }, TPF[index + 1]);
+        }
+        sleep();
+    }
     // 获取到drawImg 所需的所有数据
     this.getDrawimageParameters = function (imgDataOne, imgDataTwo, current_idx, drection, img_interval, canvas_interval) {
         let imgsData = this.forImgIndex(imgDataOne, imgDataTwo, current_idx, drection)
@@ -256,12 +281,12 @@ let spinnerImg = function (imgData, canvas) {
             let output = current_idx;
             if (drection == 0) {
                 for (let i = 0; i < length; i++) {
-                    output = output == imgData.length - 1 ? 0 : output + 1;
+                    output = output == 0 ? imgData.length - 1 : output - 1;
                     arr.push({ index: output, imgContent: imgData[output] });
                 }
             } else if (drection == 1) {
                 for (let i = 0; i < length; i++) {
-                    output = output == 0 ? imgData.length - 1 : output - 1;
+                    output = output == imgData.length - 1 ? 0 : output + 1;
                     arr.push({ index: output, imgContent: imgData[output] });
                 }
             }
